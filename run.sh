@@ -1,5 +1,5 @@
 g++ -O3 graph.cpp HI.cpp main.cpp -o till -std=c++11
-./till data/small.txt D query.txt output1.txt
+./till data/small2.txt D query.txt output1.txt
 #./till graph.txt D query.txt output1.txt
 
 #./till graph.txt D insert inserted_edge.txt query.txt output2.txt

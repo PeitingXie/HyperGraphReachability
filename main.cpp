@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	// 	}
 	// }
 	
-    cout << "query result is " << alg->baseLine(1,6,5,1) << "\n";
+    cout << "query result is " << alg->baseLine(1,7,4,1) << "\n";
 	cout << "================================PASS================================\n";
 	//
 		//fout << "Hello world\n";
