@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 	Graph * graph = new Graph(argv[1], directed);
 	
-	//SL * alg = new SL(graph);
+	SL * alg = new SL(graph);
 	
 	//alg -> construct();
 	
@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
 	
 
 	
-	for (int i = 1; i <= graph->n; i++) {
-		for (int j = 1; j <= graph->n; j++) {
+	// for (int i = 1; i <= graph->n; i++) {
+	// 	for (int j = 1; j <= graph->n; j++) {
 			
 			
-		}
-	}
+	// 	}
+	// }
 	
-
+    cout << "query result is " << alg->baseLine(1,6,5,1) << "\n";
 	cout << "================================PASS================================\n";
 	//
 		//fout << "Hello world\n";

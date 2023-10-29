@@ -20,7 +20,7 @@ using namespace std;
 
 struct HyperEdge
 {
-	int *node;
+	vector<int> node;
     int length;
 	HyperEdge *last, *next;
 };
@@ -39,6 +39,11 @@ public:
 	HyperEdge **graph_head;
 	HyperEdge *graph_edge;
 
+	vector<pair<int, int>> neighbour[10000000];
+
+    // E[i] 指的是node i 在哪些hyperedge 里
+    vector<int> E[10000000];
+
 	// in-degree and out-degree
 	int *d_in, *d_out;
 
@@ -49,7 +54,7 @@ public:
 	Graph(char *graph_file, bool directed);
 	~Graph();
 
-	void insert_edge(int u, int v, int sign);
+	void insert_edge(vector<int> nodes);
 	//void insert_edge(GraphEdge **head, GraphEdge *edge, int i, int j, int sign, int edge_id);
 	void delete_edge(int u, int v, int edge_id);
 	//void delete_edge(GraphEdge **head, GraphEdge *edge, int i, int edge_id);
