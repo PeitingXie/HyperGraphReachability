@@ -16,8 +16,8 @@ int main(int argc, char *argv[])
 	
 	SL * alg = new SL(graph);
 	
-	//alg -> construct();
-	
+	alg -> construct();
+	cout << "construct complete\n";
 	char* query_file = argv[3];
 	char* output_file = argv[4];
 
@@ -119,7 +119,13 @@ int main(int argc, char *argv[])
 	// 	}
 	// }
 	
-    cout << "query result is " << alg->baseLine(1,7,4,1) << "\n";
+
+	int i = 1;
+	int j = 7;
+	int k = 3;
+
+    cout << "baseline query result is " << alg->baseLine(i,j,k, 1) << "\n";
+	cout << "label query result is " << alg->span_reach(i,j,k, 1) << "\n";
 	cout << "================================PASS================================\n";
 	//
 		//fout << "Hello world\n";

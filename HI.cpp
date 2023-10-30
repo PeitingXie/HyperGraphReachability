@@ -20,7 +20,21 @@ SL::SL(Graph *graph)
 
 	//theta = 2000000000;
 
-	
+	label = new vector<Pair> [max_v + 1];
+	idx = new int [max_e + 1];
+	iota(idx + 1, idx + max_e + 1, 1);
+
+	sort(idx + 1, idx + m + 1, [&](int i, int j){return (long long)(neighbour[i].size() + 1) > (long long)(neighbour[j].size() + 1);});
+
+	order = new int [max_e + 1];
+	iota(order + 1, order + max_e + 1, 1);
+	for (int i = 1; i <= m; i++)
+		order[idx[i]] = i;
+
+
+	for (auto i = 1; i <= m; i++) {
+		graph_edge[i].node.push_back(n + i);
+	}
 }
 
 
@@ -31,6 +45,140 @@ SL::~SL()
 	if (order) delete[] order;
 	// for baseline
 }
+
+
+
+void SL::add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update)
+{
+	if (!label[u].size())
+		label[u].push_back(Pair(h, overlap));
+	else
+	{
+		Pair temp(h, overlap);
+		vector<Pair>::iterator it = lower_bound(label[u].begin(), label[u].end(), temp);
+		if (it->hID != h) {
+			// cout << "find " << it->hID << "\n";
+			label[u].insert(it, temp);
+		} else {
+			// cout << "123\n";
+			it->overlap = max(it->overlap, overlap);
+		}
+	}
+}
+
+
+void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bool update) {
+	int count = 0;
+	while (!Q.empty()) {
+		count++;
+		// if (count > 10) break;
+		Pair_in_queue pair = Q.top();
+		Q.pop();
+		int h = pair.hID;
+		int overlap = pair.overlap;
+		cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
+		if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
+			// cout << "this has been covered\n";
+			continue;
+		}
+		for (auto v : graph_edge[idx[h]].node) {
+			cout << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
+			add_triplet(label, v, u, overlap, update);
+			
+		}
+		for (auto nextPair : neighbour[idx[h]]) {
+			if (order[nextPair.first] <= u || order[nextPair.first] == h) continue;
+			cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
+			Q.push(Pair_in_queue(order[nextPair.first], min(overlap, nextPair.second)));
+		}
+	}
+}
+
+void SL::construct() {
+	// cout << "Importance rank for edge is:\n";
+	// for (auto i = 1; i <= m; i++) {
+	// 	cout << order[i] << " ";
+	// }
+	// cout << "\n";
+
+	cout << "neighbour relationship:\n";
+	for (auto i = 1; i <= m; i++) {
+		cout << "for edge " << i << "\n";
+		for (auto p : neighbour[i]) {
+			cout << "reach " << p.first << " with o = " << p.second << "\n"; 
+		}
+	}
+
+
+
+	for (auto i = 1; i <= 1; i++) {
+		// cout << "construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "\n";
+		Q.push(Pair_in_queue(i, graph_edge[idx[i]].node.size() - 1));
+		construct_for_a_vertex(graph_edge, label, i, false);
+		// cout << "construct for hID = " << i << " is finished\n";
+	}
+
+	
+
+	cout << "after construction:\n";
+	cout << "Index is Label :\n";
+	for (auto i = 1; i <= n; i++) {
+		cout << "Vertex ID = " << i << ":\n";
+		for (auto pair : label[i]) {
+			cout << "hID = " << idx[pair.hID] << ", " << " with overlap = " << pair.overlap << "\n";  
+		}
+	}
+
+}
+
+
+
+
+bool SL::span_reach(int u, int v, int overlap, bool original_id) {
+	cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
+	if (original_id)
+	{
+		u = (*vertex_map)[u];
+		v = (*vertex_map)[v];
+	}
+	set<int> s;
+	for (auto h : E[v]) {
+		s.insert(order[h]);
+	}
+
+	for (auto pair : label[u]) {
+		if (pair.overlap < overlap) continue;
+		if (s.find(pair.hID) != s.end()) return true; 
+		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
+	}
+	s.clear();
+	for (auto h : E[u]) {
+		s.insert(order[h]);
+	}
+
+
+	for (auto pair : label[v]) {
+		if (pair.overlap < overlap) continue;
+		if (s.find(pair.hID) != s.end()) return true; 
+		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
+	}
+
+	auto srcIt = label[u].begin();
+	auto dstIt = label[v].begin();
+	while (srcIt != label[u].end() && dstIt != label[v].end()) {
+		if (srcIt->hID > dstIt->hID) {
+			dstIt++;
+		} else if (srcIt->hID < dstIt->hID) {
+			srcIt++;
+		} else {
+			if (min(srcIt->overlap, dstIt->overlap) >= overlap) return true;
+			srcIt++;
+			dstIt++;
+		}
+	}
+	return false;
+}
+
 
 
 

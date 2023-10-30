@@ -1,6 +1,28 @@
 #include "graph.h"
 
 
+struct Pair // triplet in TILL-Index
+{
+	int hID;
+	int overlap;
+	Pair(int _hID, int _overlap): hID(_hID), overlap(_overlap) {};
+	bool operator< (const Pair &x) const
+	{
+		return hID < x.hID;
+	}
+};
+
+
+
+struct Pair_in_queue {
+	int hID;
+	int overlap;
+	Pair_in_queue(int _hID, int _overlap): hID(_hID), overlap(_overlap) {};
+	bool operator< (const Pair_in_queue &x) const
+	{
+		return overlap < x.overlap;
+	}
+};
 
 
 class SL
@@ -15,13 +37,13 @@ private:
 
 	// graph and reversed graph
 	
-
+	vector<Pair> *label;
 	// in-degree and out-degree
 	int *d_in, *d_out;
 
 	int *idx; // order --> ID
 	int *order; // ID --> order
-
+	priority_queue<Pair_in_queue> Q;
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
@@ -53,7 +75,11 @@ public:
 
 
 	void construct();
-	bool span_reach(int u, int v, int sign, bool original_id = false);
+	void construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bool update);
+	void add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update);
+	
+	
+	bool span_reach(int u, int v, int overlap, bool original_id = false);
 
 	void insert(int sign);
 	void erase(int ts);
