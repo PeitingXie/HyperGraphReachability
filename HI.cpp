@@ -69,6 +69,10 @@ void SL::add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update
 
 void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bool update) {
 	int count = 0;
+	
+	ofstream myfile;
+  	myfile.open ("out.txt");
+	
 	while (!Q.empty()) {
 		count++;
 		// if (count > 10) break;
@@ -82,16 +86,24 @@ void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bo
 			continue;
 		}
 		for (auto v : graph_edge[idx[h]].node) {
-			// cout << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
+			// count++;
+			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			add_triplet(label, v, u, overlap, update);
 			
 		}
 		for (auto nextPair : neighbour[idx[h]]) {
 			if (order[nextPair.first] <= u || order[nextPair.first] == h) continue;
-			// cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
+			// count++;
+			// if (count >= 100000) {
+			// 	myfile.close();
+			// 	return;
+			
+			// }
+			// myfile << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
 			Q.push(Pair_in_queue(order[nextPair.first], min(overlap, nextPair.second)));
 		}
 	}
+	 myfile.close();
 }
 
 void SL::construct() {
@@ -109,18 +121,23 @@ void SL::construct() {
 	// 	}
 	// }
 
-
+	ofstream myConstructionfile;
+	myConstructionfile.open ("construction.txt");
 	cout << "start construction\n";
 	for (auto i = 1; i <= m; i++) {
 		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
 		Q.push(Pair_in_queue(i, graph_edge[idx[i]].node.size() - 1));
 		// cout << "construct for hID = " << i << " is finished\n";
+		
+		auto start_time = std::chrono::high_resolution_clock::now();
 		construct_for_a_vertex(graph_edge, label, i, false);
-		// if (i % 100 == 0) {
-			cout << "finish construction for edge " << i << "\n";
-		// }
-	}
+		auto end_time = std::chrono::high_resolution_clock::now();
+		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
+		myConstructionfile << "Construction time for edge " << i << " is " <<elapsed_time.count() << "\n";
+		
+	}
+	myConstructionfile.close();
 	
 
 	// cout << "after construction:\n";
@@ -240,11 +257,9 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 				for (auto nextPair : neighbour[h]) {
 					if (nextPair.second < overlap) continue;
 					// cout << "push " << nextPair.first << " " << nextPair.second << "\n";
+					if (in_visit[nextPair.first]) continue;
 					Q_in.push(nextPair);
 				}
-				
-				
-				
 			}
 			token = 1;
 		} else {
@@ -264,6 +279,7 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 				out_visit[h] = 1;
 				for (auto nextPair : neighbour[h]) {
 					if (nextPair.second < overlap) continue;
+					if (out_visit[nextPair.first]) continue;
 					// cout << "push " << nextPair.first << " " << nextPair.second << "\n";
 					Q_out.push(nextPair);
 				}

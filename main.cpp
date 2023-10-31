@@ -87,7 +87,6 @@ int main(int argc, char *argv[])
 	ofstream fout(output_file);
 
 	int v, u, sign;
-	int count = 0;
 	// cout <<"get vertex size:\n";
 	// for (int i = 1; i <= 12; i++) {
 	// 	cout << graph -> get_vertex_id(i) << " ";
@@ -120,14 +119,6 @@ int main(int argc, char *argv[])
 	// }
 	
 
-	int i = 1;
-	int j = 7;
-	int k = 4;
-
-
-
-	
-
 
 
 	// for (auto i = 1; i <= graph->n; i++) {
@@ -144,21 +135,70 @@ int main(int argc, char *argv[])
 	// 		}
 	// 	}
 	// }
+	srand (time(NULL));
 
-	for (auto i = 1; i <= 20; i++) {
-		for (auto j = 1; j <= 20; j++) {
-			for (auto k = 1; k <= 6; k++) {
-				cout << "check " << i << ", " << j << ", " << k << "\n";
-				auto res1 = alg->baseLine(i,j,k, 1);
-				auto res2 = alg->span_reach(i,j,k, 1);
-				if (res1 != res2) {
-					cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-					return 0;
-				}
-				
-			}
+	int count = 0;
+	std::ofstream outputFile("basetime.txt", std::ios::trunc);
+	outputFile.close();
+
+	std::ofstream outputFile2("spanReachTime.txt", std::ios::trunc);
+	outputFile2.close();
+
+	while (count < 10000) {
+		count++;
+		int i = rand() % graph->n + 1;
+		int j = rand() % graph->n + 1;
+		int k = rand() % 10 + 1;
+		cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
+		
+		auto start_time = std::chrono::high_resolution_clock::now();
+		
+		auto res1 = alg->baseLine(i,j,k, 1);
+		cout << "baseline finished\n";
+		auto end_time = std::chrono::high_resolution_clock::now();
+		auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+		
+
+		std::ofstream myfile("basetime.txt", std::ios::app);
+		
+		myfile << elapsed_time_base.count() << "\n";
+		myfile.close();
+		
+		
+		start_time = std::chrono::high_resolution_clock::now();
+		auto res2 = alg->span_reach(i,j,k, 1);
+		end_time = std::chrono::high_resolution_clock::now();
+		auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+		
+		std::ofstream myfile2("spanReachTime.txt", std::ios::app);
+		
+		myfile2 << elapsed_time_span.count() << "\n";
+		myfile2.close();
+
+
+		if (res1 != res2) {
+			cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+			return 0;
 		}
+		
 	}
+
+
+
+	// for (auto i = 1; i <= 20; i++) {
+	// 	for (auto j = 1; j <= 20; j++) {
+	// 		for (auto k = 1; k <= 6; k++) {
+	// 			cout << "check " << i << ", " << j << ", " << k << "\n";
+	// 			auto res1 = alg->baseLine(i,j,k, 1);
+	// 			auto res2 = alg->span_reach(i,j,k, 1);
+	// 			if (res1 != res2) {
+	// 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+	// 				return 0;
+	// 			}
+				
+	// 		}
+	// 	}
+	// }
 
 
 
