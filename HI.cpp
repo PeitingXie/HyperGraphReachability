@@ -76,19 +76,19 @@ void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bo
 		Q.pop();
 		int h = pair.hID;
 		int overlap = pair.overlap;
-		cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
+		// cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
 		if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
 			// cout << "this has been covered\n";
 			continue;
 		}
 		for (auto v : graph_edge[idx[h]].node) {
-			cout << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
+			// cout << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			add_triplet(label, v, u, overlap, update);
 			
 		}
 		for (auto nextPair : neighbour[idx[h]]) {
 			if (order[nextPair.first] <= u || order[nextPair.first] == h) continue;
-			cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
+			// cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
 			Q.push(Pair_in_queue(order[nextPair.first], min(overlap, nextPair.second)));
 		}
 	}
@@ -101,33 +101,36 @@ void SL::construct() {
 	// }
 	// cout << "\n";
 
-	cout << "neighbour relationship:\n";
+	// cout << "neighbour relationship:\n";
+	// for (auto i = 1; i <= m; i++) {
+	// 	cout << "for edge " << i << "\n";
+	// 	for (auto p : neighbour[i]) {
+	// 		cout << "reach " << p.first << " with o = " << p.second << "\n"; 
+	// 	}
+	// }
+
+
+	cout << "start construction\n";
 	for (auto i = 1; i <= m; i++) {
-		cout << "for edge " << i << "\n";
-		for (auto p : neighbour[i]) {
-			cout << "reach " << p.first << " with o = " << p.second << "\n"; 
-		}
-	}
-
-
-
-	for (auto i = 1; i <= 1; i++) {
-		// cout << "construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "\n";
+		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
 		Q.push(Pair_in_queue(i, graph_edge[idx[i]].node.size() - 1));
-		construct_for_a_vertex(graph_edge, label, i, false);
 		// cout << "construct for hID = " << i << " is finished\n";
+		construct_for_a_vertex(graph_edge, label, i, false);
+		// if (i % 100 == 0) {
+			cout << "finish construction for edge " << i << "\n";
+		// }
 	}
 
 	
 
-	cout << "after construction:\n";
-	cout << "Index is Label :\n";
-	for (auto i = 1; i <= n; i++) {
-		cout << "Vertex ID = " << i << ":\n";
-		for (auto pair : label[i]) {
-			cout << "hID = " << idx[pair.hID] << ", " << " with overlap = " << pair.overlap << "\n";  
-		}
-	}
+	// cout << "after construction:\n";
+	// cout << "Index is Label :\n";
+	// for (auto i = 1; i <= n; i++) {
+	// 	cout << "Vertex ID = " << i << ":\n";
+	// 	for (auto pair : label[i]) {
+	// 		cout << "hID = " << idx[pair.hID] << ", " << " with overlap = " << pair.overlap << "\n";  
+	// 	}
+	// }
 
 }
 
@@ -135,7 +138,7 @@ void SL::construct() {
 
 
 bool SL::span_reach(int u, int v, int overlap, bool original_id) {
-	cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
+	// cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
 	if (original_id)
 	{
 		u = (*vertex_map)[u];

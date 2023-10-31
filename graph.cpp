@@ -20,7 +20,7 @@ Graph::Graph(char *graph_file, bool _directed)
    
     //memset(E, 0, sizeof(*E) * (max_v + 1));
 
-    cout << "here\n";
+    // cout << "here\n";
 	memset(graph_head, 0, sizeof(*graph_head) * (max_e + 1));
 	
 
@@ -52,11 +52,11 @@ Graph::Graph(char *graph_file, bool _directed)
         // 打印分割后的数据
         insert_edge(tokens);
 
-        for (auto token : tokens) {
-            std::cout << token << " ";
-        }
+        // for (auto token : tokens) {
+        //     std::cout << token << " ";
+        // }
 
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
 	
 	for (int i = 1; i <= m; i++) {

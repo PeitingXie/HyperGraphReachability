@@ -122,10 +122,49 @@ int main(int argc, char *argv[])
 
 	int i = 1;
 	int j = 7;
-	int k = 3;
+	int k = 4;
 
-    cout << "baseline query result is " << alg->baseLine(i,j,k, 1) << "\n";
-	cout << "label query result is " << alg->span_reach(i,j,k, 1) << "\n";
+
+
+	
+
+
+
+	// for (auto i = 1; i <= graph->n; i++) {
+	// 	for (auto j = 1; j <= graph->n; j++) {
+	// 		for (auto k = 1; k <= 6; k++) {
+	// 			cout << "check " << i << ", " << j << ", " << k << "\n";
+	// 			auto res1 = alg->baseLine(i,j,k, 1);
+	// 			auto res2 = alg->span_reach(i,j,k, 1);
+	// 			if (res1 != res2) {
+	// 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+	// 				return 0;
+	// 			}
+				
+	// 		}
+	// 	}
+	// }
+
+	for (auto i = 1; i <= 20; i++) {
+		for (auto j = 1; j <= 20; j++) {
+			for (auto k = 1; k <= 6; k++) {
+				cout << "check " << i << ", " << j << ", " << k << "\n";
+				auto res1 = alg->baseLine(i,j,k, 1);
+				auto res2 = alg->span_reach(i,j,k, 1);
+				if (res1 != res2) {
+					cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+					return 0;
+				}
+				
+			}
+		}
+	}
+
+
+
+
+    // cout << "baseline query result is " << alg->baseLine(i,j,k, 1) << "\n";
+	// cout << "label query result is " << alg->span_reach(i,j,k, 1) << "\n";
 	cout << "================================PASS================================\n";
 	//
 		//fout << "Hello world\n";
