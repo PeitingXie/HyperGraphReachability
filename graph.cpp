@@ -39,8 +39,10 @@ Graph::Graph(char *graph_file, bool _directed)
     
 
 	
+
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
+		
         istringstream iss(line);
         string word;
         vector<int> tokens;
@@ -60,7 +62,9 @@ Graph::Graph(char *graph_file, bool _directed)
 
         // std::cout << std::endl;
     }
+	cout << "data reading is finished\n";
 	
+
 	for (int i = 1; i <= m; i++) {
 		map<int, int> m;
 		for (auto v : graph_edge[i].node) {
@@ -78,6 +82,12 @@ Graph::Graph(char *graph_file, bool _directed)
 			neighbour[pair.first].push_back(make_pair(i, pair.second));
 			neighbour[i].push_back(make_pair(pair.first, pair.second));
 		}
+
+
+		if (i % 100 == 0) {
+			cout << "preComputing for hyperedge " << i << "is finished\n";
+		}
+		
 	}
 
 
