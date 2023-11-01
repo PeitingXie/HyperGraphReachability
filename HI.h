@@ -37,8 +37,7 @@ private:
 
 	// graph and reversed graph
 	
-	vector<Pair> *label;
-
+	vector<Pair> *label, *tmpLabel;
 	
 
 
@@ -79,7 +78,7 @@ public:
 
 
 	void construct();
-	void construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bool update);
+	void construct_for_a_vertex(HyperEdge * head, int u, bool update);
 	void add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update);
 	
 	

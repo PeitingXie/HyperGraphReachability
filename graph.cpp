@@ -38,8 +38,6 @@ Graph::Graph(char *graph_file, bool _directed)
     string line;
     
 
-	
-
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
 		
@@ -90,7 +88,8 @@ Graph::Graph(char *graph_file, bool _directed)
 		
 	}
 
-
+	cout << "precompute finished\n";
+	
     
 
 	fin.close();
