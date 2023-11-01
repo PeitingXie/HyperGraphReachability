@@ -76,7 +76,7 @@ void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bo
 		Q.pop();
 		int h = pair.hID;
 		int overlap = pair.overlap;
-		// cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
+		cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
 		if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
 			// cout << "this has been covered\n";
 			continue;
@@ -88,7 +88,7 @@ void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bo
 		}
 		for (auto nextPair : neighbour[idx[h]]) {
 			if (order[nextPair.first] <= u || order[nextPair.first] == h) continue;
-			// cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
+			cout << "push (" << nextPair.first << ", " << min(overlap, nextPair.second) << ")\n";
 			Q.push(Pair_in_queue(order[nextPair.first], min(overlap, nextPair.second)));
 		}
 	}

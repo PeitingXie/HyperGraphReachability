@@ -37,6 +37,8 @@ Graph::Graph(char *graph_file, bool _directed)
 	ifstream fin(graph_file);
     string line;
     
+
+	
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
         istringstream iss(line);
