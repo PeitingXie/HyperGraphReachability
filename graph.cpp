@@ -60,8 +60,8 @@ Graph::Graph(char *graph_file, bool _directed)
 
         // std::cout << std::endl;
     }
-	
 	cout << "data reading is finished\n";
+	
 
 	for (int i = 1; i <= m; i++) {
 		map<int, int> m;
@@ -85,6 +85,7 @@ Graph::Graph(char *graph_file, bool _directed)
 		if (i % 100 == 0) {
 			cout << "preComputing for hyperedge " << i << "is finished\n";
 		}
+		
 	}
 
 

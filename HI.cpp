@@ -20,14 +20,14 @@ SL::SL(Graph *graph)
 
 	//theta = 2000000000;
 
-	label = new vector<Pair> [max_v + 1];
-	idx = new int [max_e + 1];
-	iota(idx + 1, idx + max_e + 1, 1);
+	label = new vector<Pair> [n + m + 1];
+	idx = new int [m + 1];
+	iota(idx + 1, idx + m + 1, 1);
 
 	sort(idx + 1, idx + m + 1, [&](int i, int j){return (long long)(neighbour[i].size() + 1) > (long long)(neighbour[j].size() + 1);});
 
-	order = new int [max_e + 1];
-	iota(order + 1, order + max_e + 1, 1);
+	order = new int [m + 1];
+	iota(order + 1, order + m + 1, 1);
 	for (int i = 1; i <= m; i++)
 		order[idx[i]] = i;
 
@@ -35,6 +35,7 @@ SL::SL(Graph *graph)
 	for (auto i = 1; i <= m; i++) {
 		graph_edge[i].node.push_back(n + i);
 	}
+
 }
 
 
@@ -121,6 +122,8 @@ void SL::construct() {
 	// 	}
 	// }
 
+
+
 	ofstream myConstructionfile;
 	myConstructionfile.open ("construction.txt");
 	cout << "start construction\n";
@@ -140,6 +143,19 @@ void SL::construct() {
 	myConstructionfile.close();
 	
 
+
+	for (auto i = n + 1; i <= n + m; i++) {
+		label[i].clear();
+	}
+	std::vector<Pair>* newLabel = new std::vector<Pair>[n + 1];
+	for (int j = 1; j <= n; j++) {
+		newLabel[j] = label[j];
+	}
+	delete[] label;
+	label = newLabel;
+
+
+
 	// cout << "after construction:\n";
 	// cout << "Index is Label :\n";
 	// for (auto i = 1; i <= n; i++) {
@@ -158,15 +174,21 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 	// cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
 	if (original_id)
 	{
-		u = (*vertex_map)[u];
-		v = (*vertex_map)[v];
+		if (u <= n) u = (*vertex_map)[u];
+		if (v <= n) v = (*vertex_map)[v];
 	}
+	
+	vector<Pair> *label_u, *label_v;
+	label_u =  label;
+	label_v = label;
+	
+	
 	set<int> s;
 	for (auto h : E[v]) {
 		s.insert(order[h]);
 	}
 
-	for (auto pair : label[u]) {
+	for (auto pair : label_u[u]) {
 		if (pair.overlap < overlap) continue;
 		if (s.find(pair.hID) != s.end()) return true; 
 		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
@@ -177,15 +199,15 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 	}
 
 
-	for (auto pair : label[v]) {
+	for (auto pair : label_v[v]) {
 		if (pair.overlap < overlap) continue;
 		if (s.find(pair.hID) != s.end()) return true; 
 		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
 	}
 
-	auto srcIt = label[u].begin();
-	auto dstIt = label[v].begin();
-	while (srcIt != label[u].end() && dstIt != label[v].end()) {
+	auto srcIt = label_u[u].begin();
+	auto dstIt = label_v[v].begin();
+	while (srcIt != label_u[u].end() && dstIt != label_v[v].end()) {
 		if (srcIt->hID > dstIt->hID) {
 			dstIt++;
 		} else if (srcIt->hID < dstIt->hID) {

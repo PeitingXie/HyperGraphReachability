@@ -38,6 +38,10 @@ private:
 	// graph and reversed graph
 	
 	vector<Pair> *label;
+
+	
+
+
 	// in-degree and out-degree
 	int *d_in, *d_out;
 
