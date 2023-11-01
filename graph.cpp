@@ -88,7 +88,8 @@ Graph::Graph(char *graph_file, bool _directed)
 		
 	}
 
-
+	cout << "precompute finished\n";
+	
     
 
 	fin.close();

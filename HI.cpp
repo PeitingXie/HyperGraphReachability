@@ -20,7 +20,8 @@ SL::SL(Graph *graph)
 
 	//theta = 2000000000;
 
-	label = new vector<Pair> [n + m + 1];
+	label = new vector<Pair> [n + 1];
+	tmpLabel = new vector<Pair> [m + 1];
 	idx = new int [m + 1];
 	iota(idx + 1, idx + m + 1, 1);
 
@@ -35,6 +36,8 @@ SL::SL(Graph *graph)
 	for (auto i = 1; i <= m; i++) {
 		graph_edge[i].node.push_back(n + i);
 	}
+
+	
 
 }
 
@@ -68,7 +71,7 @@ void SL::add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update
 }
 
 
-void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bool update) {
+void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 	int count = 0;
 	
 	ofstream myfile;
@@ -89,7 +92,11 @@ void SL::construct_for_a_vertex(HyperEdge * head, vector<Pair> *label, int u, bo
 		for (auto v : graph_edge[idx[h]].node) {
 			// count++;
 			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
-			add_triplet(label, v, u, overlap, update);
+			if (v > n) {
+				add_triplet(tmpLabel, v - n, u, overlap, update);
+			} else {
+				add_triplet(label, v, u, overlap, update);
+			}
 			
 		}
 		for (auto nextPair : neighbour[idx[h]]) {
@@ -123,6 +130,8 @@ void SL::construct() {
 	// }
 
 
+	cout << "ready to construct\n";
+	
 
 	ofstream myConstructionfile;
 	myConstructionfile.open ("construction.txt");
@@ -133,26 +142,23 @@ void SL::construct() {
 		// cout << "construct for hID = " << i << " is finished\n";
 		
 		auto start_time = std::chrono::high_resolution_clock::now();
-		construct_for_a_vertex(graph_edge, label, i, false);
+		construct_for_a_vertex(graph_edge, i, false);
 		auto end_time = std::chrono::high_resolution_clock::now();
 		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
 		myConstructionfile << "Construction time for edge " << i << " is " <<elapsed_time.count() << "\n";
 		
 	}
+	
+	
 	myConstructionfile.close();
 	
 
+	int a, b, c;
+	cin >> a >> b >> c;
+	delete[] tmpLabel;
 
-	for (auto i = n + 1; i <= n + m; i++) {
-		label[i].clear();
-	}
-	std::vector<Pair>* newLabel = new std::vector<Pair>[n + 1];
-	for (int j = 1; j <= n; j++) {
-		newLabel[j] = label[j];
-	}
-	delete[] label;
-	label = newLabel;
+	
 
 
 
@@ -179,12 +185,27 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 	}
 	
 	vector<Pair> *label_u, *label_v;
-	label_u =  label;
-	label_v = label;
+
+	int tmp_u = u;
+	int tmp_v = v;
+
+	if (u > n) {
+		label_u = tmpLabel;
+		u -= n;
+	} else {
+		label_u =  label;
+	}
+
+	if (v > n) {
+		label_v = tmpLabel;
+		v -= n;
+	} else {
+		label_v = label;
+	}
 	
 	
 	set<int> s;
-	for (auto h : E[v]) {
+	for (auto h : E[tmp_v]) {
 		s.insert(order[h]);
 	}
 
@@ -193,8 +214,9 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 		if (s.find(pair.hID) != s.end()) return true; 
 		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
 	}
+
 	s.clear();
-	for (auto h : E[u]) {
+	for (auto h : E[tmp_u]) {
 		s.insert(order[h]);
 	}
 
