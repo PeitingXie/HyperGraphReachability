@@ -41,7 +41,7 @@ public:
 	HyperEdge **graph_head;
 	HyperEdge *graph_edge;
 
-	vector<pair<int, int>> neighbour[10000000];
+	
 
     // E[i] 指的是node i 在哪些hyperedge 里
     vector<int> E[10000000];

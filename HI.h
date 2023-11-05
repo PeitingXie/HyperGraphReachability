@@ -50,7 +50,7 @@ private:
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
-	vector<pair<int, int>> *neighbour;
+	vector<pair<int, int>> neighbour[10000000];
 
 	// TILL-Index
 	

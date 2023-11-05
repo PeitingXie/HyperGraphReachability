@@ -16,7 +16,11 @@ int main(int argc, char *argv[])
 	
 	SL * alg = new SL(graph);
 	
+	
+	cout << "graph init complete\n";
+
 	alg -> construct();
+	
 	cout << "construct complete\n";
 	char* query_file = argv[3];
 	char* output_file = argv[4];
@@ -138,17 +142,17 @@ int main(int argc, char *argv[])
 	srand (time(NULL));
 
 	int count = 0;
-	// std::ofstream outputFile("basetime.txt", std::ios::trunc);
-	// outputFile.close();
+	std::ofstream outputFile("basetime.txt", std::ios::trunc);
+	outputFile.close();
 
-	// std::ofstream outputFile2("spanReachTime.txt", std::ios::trunc);
-	// outputFile2.close();
+	std::ofstream outputFile2("spanReachTime.txt", std::ios::trunc);
+	outputFile2.close();
 
 	while (count < 2000) {
 		count++;
 		int i = rand() % graph->n + 1;
 		int j = rand() % graph->n + 1;
-		int k = 2;
+		int k = 1;
 		cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
 		
 		auto start_time = std::chrono::high_resolution_clock::now();

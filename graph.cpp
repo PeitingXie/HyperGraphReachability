@@ -37,7 +37,7 @@ Graph::Graph(char *graph_file, bool _directed)
 	ifstream fin(graph_file);
     string line;
     
-
+	int num = 0;
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
 		
@@ -50,8 +50,11 @@ Graph::Graph(char *graph_file, bool _directed)
             tokens.push_back(v);
             
         }
+		if (tokens.size() == 1) {
+			num++;
+			continue;
+		} 
 
-        // 打印分割后的数据
         insert_edge(tokens);
 
         // for (auto token : tokens) {
@@ -61,34 +64,11 @@ Graph::Graph(char *graph_file, bool _directed)
         // std::cout << std::endl;
     }
 	cout << "data reading is finished\n";
+	cout << "total edge num is " << m << "\n";
+	cout << "edge num where size = 1 is :" << num << "\n";
 	
-
-	for (int i = 1; i <= m; i++) {
-		map<int, int> m;
-		for (auto v : graph_edge[i].node) {
-			for (auto h : E[v]) {
-				if (h <= i) continue;
-				if (m.find(h) != m.end()) {
-					m[h]++;
-				} else {
-					m.insert(make_pair(h, 1));
-				}
-			}
-		}
-
-		for (auto pair : m) {
-			neighbour[pair.first].push_back(make_pair(i, pair.second));
-			neighbour[i].push_back(make_pair(pair.first, pair.second));
-		}
-
-
-		if (i % 100 == 0) {
-			cout << "preComputing for hyperedge " << i << "is finished\n";
-		}
-		
-	}
-
-	cout << "precompute finished\n";
+	
+	
 	
     
 
