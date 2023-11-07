@@ -12,8 +12,6 @@ SL::SL(Graph *graph)
 	E = graph->E;
 	graph_edge = graph->graph_edge;
 
-	d_in = graph -> d_in;
-	d_out = graph -> d_out;
 
 	vertex_map = &(graph -> vertex_map);
 
@@ -191,8 +189,9 @@ void SL::construct() {
 		construct_for_a_vertex(graph_edge, i, false);
 		auto end_time = std::chrono::high_resolution_clock::now();
 		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-
-		myConstructionfile << "Construction time for edge " << i << " is " <<elapsed_time.count() << "\n";
+		if (i % 1000 == 1) {
+			cout << "Edge  " << i << " has ben constructed " << "\n";
+		}
 		
 	}
 	
@@ -257,8 +256,8 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 
 	for (auto pair : label_u[u]) {
 		if (pair.overlap < overlap) continue;
-		if (s.find(pair.hID) != s.end()) return true; 
-		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
+		// if (s.find(pair.hID) != s.end()) return true; 
+		if (binary_search(s.begin(), s.end(), pair.hID)) return true;
 	}
 
 	s.clear();
@@ -269,21 +268,19 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 
 	for (auto pair : label_v[v]) {
 		if (pair.overlap < overlap) continue;
-		if (s.find(pair.hID) != s.end()) return true; 
-		//if (binary_search(s.begin(), s.end(), pair.hID)) return true;
+		// if (s.find(pair.hID) != s.end()) return true; 
+		if (binary_search(s.begin(), s.end(), pair.hID)) return true;
 	}
 
 	auto srcIt = label_u[u].begin();
 	auto dstIt = label_v[v].begin();
 	while (srcIt != label_u[u].end() && dstIt != label_v[v].end()) {
-		if (srcIt->hID > dstIt->hID) {
+		if (srcIt->hID > dstIt->hID || srcIt->overlap < overlap) {
 			dstIt++;
-		} else if (srcIt->hID < dstIt->hID) {
+		} else if (srcIt->hID < dstIt->hID || dstIt->overlap < overlap) {
 			srcIt++;
 		} else {
-			if (min(srcIt->overlap, dstIt->overlap) >= overlap) return true;
-			srcIt++;
-			dstIt++;
+			return true;
 		}
 	}
 	return false;

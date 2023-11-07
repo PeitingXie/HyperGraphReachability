@@ -41,8 +41,7 @@ private:
 	
 
 
-	// in-degree and out-degree
-	int *d_in, *d_out;
+
 
 	int *idx; // order --> ID
 	int *order; // ID --> order

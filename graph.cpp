@@ -3,17 +3,16 @@
 
 Graph::Graph(char *graph_file, bool _directed)
 {
-	max_v = 10000000;
+	max_v = 20000000;
 	max_e = 100000000;
 	
 	n = 0;
 	m = 0;
-
+	max_size = 0;
 	directed = _directed;
 	
+	
 
-
-    graph_head = new HyperEdge* [max_e + 1];
 	graph_edge = new HyperEdge [max_e + 1];
 
     //E = new int* [max_v + 1];
@@ -21,11 +20,9 @@ Graph::Graph(char *graph_file, bool _directed)
     //memset(E, 0, sizeof(*E) * (max_v + 1));
 
     // cout << "here\n";
-	memset(graph_head, 0, sizeof(*graph_head) * (max_e + 1));
 	
 
-	d_in = new int [max_v + 1];
-	memset(d_in, 0, sizeof(*d_in) * (max_v + 1));
+
 		
 	
 
@@ -38,9 +35,10 @@ Graph::Graph(char *graph_file, bool _directed)
     string line;
     
 	int num = 0;
+	int count = 0;
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
-		
+
         istringstream iss(line);
         string word;
         vector<int> tokens;
@@ -48,13 +46,22 @@ Graph::Graph(char *graph_file, bool _directed)
         while (iss >> word) {
             int v = get_vertex_id(stoi(word));
             tokens.push_back(v);
-            
+           
         }
+
+		
 		if (tokens.size() == 1) {
 			num++;
 			continue;
 		} 
 
+		int currSize = tokens.size();
+		max_size = max(max_size, currSize);
+
+		if (count % 1000 == 0) {
+			cout << "input for line " << count << "\n";
+		}
+		count++;
         insert_edge(tokens);
 
         // for (auto token : tokens) {
@@ -64,29 +71,23 @@ Graph::Graph(char *graph_file, bool _directed)
         // std::cout << std::endl;
     }
 	cout << "data reading is finished\n";
-	cout << "total edge num is " << m << "\n";
+	cout << "total usefule edge num is " << m << "\n";
 	cout << "edge num where size = 1 is :" << num << "\n";
-	
-	
-	
-	
-    
+	cout << "total n = " << n << ", m" << num + m << "\n";
+	while (true) {
 
+	}
 	fin.close();
 }
 
 
 Graph::~Graph()
 {
-	if (graph_head) delete[] graph_head;
 	if (graph_edge) delete[] graph_edge;
-	if (d_in) delete[] d_in;
+
 	if (vertex_id) delete[] vertex_id;
 
-	if (directed)
-	{
-		if (d_out) delete[] d_out;
-	}
+
 }
 
 
@@ -95,11 +96,16 @@ Graph::~Graph()
 void Graph::insert_edge(vector<int> nodes)
 {
 	m++;
+	// if (m >578000) cout << nodes.size() <<"\n";
     for (auto v : nodes) {
-        E[v].push_back(m);
+        
+		// E[v].push_back(m);
+		
         graph_edge[m].node.push_back(v);
-    }
+	}
+	
 	graph_edge[m].length = nodes.size();
+
 }
 
 

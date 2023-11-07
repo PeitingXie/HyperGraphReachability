@@ -18,6 +18,7 @@
 #include <functional>
 #include <chrono>
 #include <time.h>
+#include <filesystem>
 using namespace std;
 
 struct HyperEdge
@@ -33,21 +34,20 @@ class Graph
 public:
 	// the number of vertices and the number of edges
 	int max_v, max_e; // set them in "graph.cpp"
-	int n, m;
+	int n, m, max_size;
 
 	bool directed; // directed graph or undirected graph
 
 	// graph and reversed graph
-	HyperEdge **graph_head;
 	HyperEdge *graph_edge;
 
 	
 
     // E[i] 指的是node i 在哪些hyperedge 里
-    vector<int> E[10000000];
+    vector<int> E[20000000];
 
 	// in-degree and out-degree
-	int *d_in, *d_out;
+
 
 	int *vertex_id; // new ID --> original ID
 	map<int, int> vertex_map; // original ID --> new ID
