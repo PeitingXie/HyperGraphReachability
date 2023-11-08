@@ -165,7 +165,11 @@ int main(int argc, char *argv[])
 	string twoHopOutput = "test_result/" + folderName + "/spanReachTime";
 
 	cout << "max size is " << graph->max_size << "\n";
+
+	int reach = 0;
+	int total = 0;
 	for (auto overlap = 0; overlap < min(graph->max_size,5); overlap++) {
+		total++;
 		int k;
 		string currBaseOutFile;
 		string currTwoHopOutFile; 
@@ -234,8 +238,8 @@ int main(int argc, char *argv[])
 		// 	}
 		// }
 
-		while (count < 500000) {
-			count++;
+		while (count < 10000) {
+			
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
@@ -278,6 +282,8 @@ int main(int argc, char *argv[])
 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
 				return 0;
 			}
+			if (res1 == true) reach++;
+			count++;
 			
 		}
 	}
@@ -313,5 +319,6 @@ int main(int argc, char *argv[])
 	fin.close();
 	fout.close();
 	cout << "test for " << argv[1] << " is finished\n";	
+	cout << "total test case = " << total << ", true case = " << reach << "\n"; 
 	return 0;
 }

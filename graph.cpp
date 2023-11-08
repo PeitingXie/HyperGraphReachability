@@ -52,7 +52,7 @@ Graph::Graph(char *graph_file, bool _directed)
 		
 		if (tokens.size() == 1) {
 			num++;
-			continue;
+			// continue;
 		} 
 
 		int currSize = tokens.size();
@@ -74,10 +74,24 @@ Graph::Graph(char *graph_file, bool _directed)
 	cout << "total usefule edge num is " << m << "\n";
 	cout << "edge num where size = 1 is :" << num << "\n";
 	cout << "total n = " << n << ", m" << num + m << "\n";
-	while (true) {
-
-	}
+	
 	fin.close();
+	// double avg = 0;
+	// for (auto i = 1; i <= m; i++) {
+	// 	set<int> s;
+	// 	for (auto v : graph_edge[i].node) {
+	// 		for (auto k : E[v]) {
+	// 			s.insert(k);
+	// 		}
+	// 	}
+	// 	avg += s.size();
+	// 	s.clear();
+	// }
+
+	// cout << "avg degree is " << avg / m << "\n";
+	// while (true) {
+
+	// }
 }
 
 
@@ -99,7 +113,7 @@ void Graph::insert_edge(vector<int> nodes)
 	// if (m >578000) cout << nodes.size() <<"\n";
     for (auto v : nodes) {
         
-		// E[v].push_back(m);
+		E[v].push_back(m);
 		
         graph_edge[m].node.push_back(v);
 	}

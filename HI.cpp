@@ -170,16 +170,14 @@ void SL::construct() {
 
 
 
-	
-
-
-
 	cout << "ready to construct\n";
 	
 
 	ofstream myConstructionfile;
 	myConstructionfile.open ("construction.txt");
 	cout << "start construction\n";
+	// int c;
+	// cin >> c;
 	for (auto i = 1; i <= m; i++) {
 		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
 		Q.push(Pair_in_queue(i, graph_edge[idx[i]].node.size() - 1));
@@ -199,7 +197,9 @@ void SL::construct() {
 	myConstructionfile.close();
 	
 	cout << "construction finished\n";
-	
+	// while (true) {
+
+	// }
 
 	// delete[] tmpLabel;
 
