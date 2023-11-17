@@ -52,7 +52,7 @@ Graph::Graph(char *graph_file, bool _directed)
 		
 		if (tokens.size() == 1) {
 			num++;
-			// continue;
+			continue;
 		} 
 
 		int currSize = tokens.size();

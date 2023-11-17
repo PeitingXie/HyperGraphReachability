@@ -172,6 +172,42 @@ void SL::construct() {
 
 	cout << "ready to construct\n";
 	
+	int singleNode = 0;
+
+	// for (auto i = 0; i <= n; i++) {
+	// 	mapTo.push_back(i);
+	// }
+
+
+	for (auto i = 1; i <= m; i++) {
+		// cout << "i = " << i << "\n";
+		int head = -1;
+		for (auto v : graph_edge[i].node) {
+			if (E[v].size() == 1) {
+				head = v;
+				break;
+			}
+		}
+		if (head == -1) continue;
+		// if (head == -1) head = graph_edge[i].node[0];
+		for (auto it = graph_edge[i].node.begin(); it != graph_edge[i].node.end();) {
+			if (E[*it].size() == 1 && *it != head) {
+				// cout << "1\n";
+				
+				(*vertex_map)[*it] = (*vertex_map)[head];
+				it = graph_edge[i].node.erase(it);
+				singleNode++;
+			} else {
+				++it;
+			}
+			
+		}
+		graph_edge[i].node.shrink_to_fit();
+
+	}
+	cout << "total n = " << n << ", single node = " << singleNode << "\n";
+
+	
 
 	ofstream myConstructionfile;
 	myConstructionfile.open ("construction.txt");
@@ -180,7 +216,7 @@ void SL::construct() {
 	// cin >> c;
 	for (auto i = 1; i <= m; i++) {
 		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
-		Q.push(Pair_in_queue(i, graph_edge[idx[i]].node.size() - 1));
+		Q.push(Pair_in_queue(i, graph_edge[idx[i]].length));
 		// cout << "construct for hID = " << i << " is finished\n";
 		
 		auto start_time = std::chrono::high_resolution_clock::now();
@@ -197,11 +233,11 @@ void SL::construct() {
 	myConstructionfile.close();
 	
 	cout << "construction finished\n";
+	delete[] tmpLabel;
 	// while (true) {
 
 	// }
 
-	// delete[] tmpLabel;
 
 	
 
