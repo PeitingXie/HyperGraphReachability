@@ -159,42 +159,48 @@ int main(int argc, char *argv[])
 	// 	}
 
 
+		/*
+		
+		int count = 0;
 
 
-	// 	int count = 0;
-
-
-	// 	while (count < 10000) {
+		while (count < 20000) {
 			
-	// 		int i = rand() % graph->n + 1;
-	// 		int j = rand() % graph->n + 1;
+			// int i = rand() % graph->n + 1;
+			// int j = rand() % graph->n + 1;
+			// int k = rand() % graph->max_size + 1;
+			int i = 1429;
+			int j = 153;
+			int k = 141;
+			string currk;
+			// if (overlap != 0) {
+			// 	currk = to_string(k);
+			// } else {
+			// 	currk = "random";
+			// }
+			cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
 			
-	// 		string currk;
-	// 		if (overlap != 0) {
-	// 			currk = to_string(k);
-	// 		} else {
-	// 			currk = "random";
-	// 		}
-	// 		cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
-			
-	// 		auto res1 = alg->baseLine(i,j,k, 1);
-	// 		cout << "baseline finished\n";
+			auto res1 = alg->baseLine(i,j,k, 1);
+			// auto res1 = alg->baseline(246, 717, 125, 1);
+			cout << "baseline finished\n";
 
-	// 		auto res2 = alg->span_reach(i,j,k, 1);
+			auto res2 = alg->span_reach(i,j,k, 1);
+			// auto res2 = alg->span_reach(246, 717, 125, 1);
 		
 
 
-	// 		if (res1 != res2) {
-	// 			cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-	// 			return 0;
-	// 		}
-	// 		if (res1 == true) reach++;
-	// 		count++;
+			if (res1 != res2) {
+				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+				return 0;
+			}
+			// if (res1 == true) reach++;
+			// break;
+			count++;
 			
-	// 	}
-	// }
-
-
+		}
+	//}
+		
+		*/
 
 
 
@@ -202,7 +208,7 @@ int main(int argc, char *argv[])
 
 	
 	
-	
+	/*
 	std::string fullPath = argv[1];
 	size_t lastSlashPos = fullPath.find_last_of('/');
     size_t dotPos = fullPath.find_last_of('.');
@@ -354,33 +360,45 @@ int main(int argc, char *argv[])
 
 
 
-	// for (auto i = 1; i <= 20; i++) {
-	// 	for (auto j = 1; j <= 20; j++) {
-	// 		for (auto k = 1; k <= 6; k++) {
-	// 			cout << "check " << i << ", " << j << ", " << k << "\n";
-	// 			auto res1 = alg->baseLine(i,j,k, 1);
-	// 			auto res2 = alg->span_reach(i,j,k, 1);
-	// 			if (res1 != res2) {
-	// 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-	// 				return 0;
-	// 			}
-				
-	// 		}
-	// 	}
-	// }
+	
 
 
 
 
     // cout << "baseline query result is " << alg->baseLine(i,j,k, 1) << "\n";
 	// cout << "label query result is " << alg->span_reach(i,j,k, 1) << "\n";
+	fin.close();
+	fout.close();
+	*/
+
+
+	for (auto i = 1; i <= 8; i++) {
+		for (auto j = 1; j <= 8; j++) {
+			for (auto k = 1; k <= graph->max_size; k++) {
+				cout << "check " << i << ", " << j << ", " << k << "\n";
+				auto res1 = alg->baseLine(i,j,k, 1);
+				auto res2 = alg->span_reach(i,j,k, 1);
+				if (res1 != res2) {
+					cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+					return 0;
+				}
+				
+			}
+		}
+	}
+
+	// auto res1 = alg->baseLine(1,4,1, 1);
+	// auto res2 = alg->span_reach(1,4,1, 1);
 	
+	// if (res1 != res2) {
+	// 	cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "with k = " << 1 <<"\n" ;
+	// 	return 0;
+	// }
+
 	cout << "================================PASS================================\n";
 	//
 		//fout << "Hello world\n";
 
-	fin.close();
-	fout.close();
 
 
 	// for (int i = 1; i <= 10; i++) {
@@ -397,6 +415,6 @@ int main(int argc, char *argv[])
 
 
 	cout << "test for " << argv[1] << " is finished\n";	
-	cout << "total test case = " << total << ", true case = " << reach << "\n"; 
+	//cout << "total test case = " << total << ", true case = " << reach << "\n"; 
 	return 0;
 }
