@@ -159,19 +159,19 @@ int main(int argc, char *argv[])
 	// 	}
 
 
-		/*
+	
 		
 		int count = 0;
 
 
-		while (count < 20000) {
+		while (count < 100000) {
 			
 			// int i = rand() % graph->n + 1;
 			// int j = rand() % graph->n + 1;
 			// int k = rand() % graph->max_size + 1;
-			int i = 1429;
-			int j = 153;
-			int k = 141;
+			int i = 36;
+			int j = 15;
+			int k = 2;
 			string currk;
 			// if (overlap != 0) {
 			// 	currk = to_string(k);
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 		}
 	//}
 		
-		*/
+	
 
 
 
@@ -372,20 +372,20 @@ int main(int argc, char *argv[])
 	*/
 
 
-	for (auto i = 1; i <= 8; i++) {
-		for (auto j = 1; j <= 8; j++) {
-			for (auto k = 1; k <= graph->max_size; k++) {
-				cout << "check " << i << ", " << j << ", " << k << "\n";
-				auto res1 = alg->baseLine(i,j,k, 1);
-				auto res2 = alg->span_reach(i,j,k, 1);
-				if (res1 != res2) {
-					cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-					return 0;
-				}
+	// for (auto i = 1; i <= 8; i++) {
+	// 	for (auto j = 1; j <= 8; j++) {
+	// 		for (auto k = 1; k <= graph->max_size; k++) {
+	// 			cout << "check " << i << ", " << j << ", " << k << "\n";
+	// 			auto res1 = alg->baseLine(i,j,k, 1);
+	// 			auto res2 = alg->span_reach(i,j,k, 1);
+	// 			if (res1 != res2) {
+	// 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+	// 				return 0;
+	// 			}
 				
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 
 	// auto res1 = alg->baseLine(1,4,1, 1);
 	// auto res2 = alg->span_reach(1,4,1, 1);

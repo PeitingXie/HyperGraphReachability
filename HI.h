@@ -49,7 +49,7 @@ private:
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
-	vector<pair<int, int>> neighbour[10000000];
+	int neighbour[10000000];
 
 	// TILL-Index
 	
@@ -78,7 +78,7 @@ public:
 
 	void construct();
 	void construct_for_a_vertex(HyperEdge * head, int u, bool update);
-	void add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update);
+	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
 	
 	bool span_reach(int u, int v, int overlap, bool original_id = false);
