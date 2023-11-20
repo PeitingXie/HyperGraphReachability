@@ -93,10 +93,18 @@ SL::~SL()
 
 void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update)
 {
-	if (!currLabel[u].size())
+	
+	
+
+
+	if (!currLabel[u].size()) {
 		currLabel[u].push_back(Pair(h, overlap));
-	else
-	{
+		if (u == 71 && h == 32) {
+			cout << "insert empty 71 32\n";
+		}
+	} else {
+		
+
 		Pair temp(h, overlap);
 
 		auto it = std::lower_bound(currLabel[u].begin(), currLabel[u].end(), temp,
@@ -106,10 +114,22 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 
 
 		// vector<Pair>::iterator it = lower_bound(label[u].begin(), label[u].end(), temp);
-		if (it->hID != h) {
-			// cout << "find " << it->hID << "\n";
+		if (it->hID != h || it == currLabel[u].end()) {
+			// if (u == 71 && h == 32) {
+			// 	cout << "insert 71 32\n";
+			// }
 			currLabel[u].insert(it, temp);
 		} else {
+			// if (u == 71 && h == 32) {
+			// 	// cout << "insert 71 32\n";
+			// 	cout << "find " << it->hID << "\n";
+			// 	for (auto p : currLabel[u]) {
+			// 		cout << "h = " << p.hID << ", with overlap = " << p.overlap << "\n";
+			// 	}
+			// 	if (it == currLabel[u].end()) {
+			// 		"equal = end\n";
+			// 	}
+			// }
 			// cout << "123\n";
 			it->overlap = max(it->overlap, overlap);
 		}
@@ -130,25 +150,32 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		Q.pop();
 		int h = pair.hID;
 		int overlap = pair.overlap;
-		if (u == 32) {
-			myfile << "BFS to " << h << "with overlap = " << overlap << "\n";
-		}
-		// cout << "current hID is " << idx[h] << ", with o = " << overlap << "\n";
-		if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
+
+		myfile << "current hID is " << h << ", with o = " << overlap << "\n";
+		myfile << "span_reach check for hyperedge " << u << " and " <<  h  << "\n";
+		// if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
+		// 	continue;
+		// }
+
+		if (span_reach(h + n, u + n, overlap)) {
 			continue;
 		}
-		
+		myfile << "and not covered\n";
 
 		int needBFS = false;
 		for (auto v : graph_edge[idx[h]].node) {
-			if (span_reach(idx[u] + n, v, overlap)) {
-				continue;
-			}
+			// if (span_reach(idx[u] + n, v, overlap)) {
+			// 	continue;
+			// }
 			// count++;
 			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			if (v > n) {
-				add_triplet(tmpLabel, v - n, u, overlap, update);
+				add_triplet(tmpLabel, order[v - n], u, overlap, update);
+				// if (order[v - n] == 71 && u == 32) {
+				// 	// cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
+				// 	cout << "size = " << tmpLabel[u].size() <<"\n";
 				
+				// }
 			} else {
 				// needBFS = true;
 				add_triplet(label, v, u, overlap, update);
@@ -336,15 +363,40 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 	
 	set<int> s;
 	if (v > n) {
-		s.insert(order[v - n]);
+		s.insert(v - n);
+		// if (tmp_u == 71 && tmp_v == 32) {
+		// 	cout << "insert " << v-n <<"\n";
+		// }
 	} else {
 		for (auto h : E[v]) {
 			s.insert(order[h]);
 		}
 	}
+
+	// if (tmp_u == 71 && tmp_v == 32) {
+	// 	cout << "label_u[tmp_u].size() = " << label_u[tmp_u].size() <<"\n";
+	// 	for (int i = 0; i < label_u[tmp_u].size(); i++) {
+	// 		// if (label_u[tmp_u][i].hID == 32) {
+	// 		cout << "ID = " << label_u[tmp_u][i].hID << ", overlap = " << label_u[tmp_u][i].overlap << ", required " << overlap << "\n";
+	// 		// }
+	// 		// cout << "label_u[tmp_u]["  << i << "]" << label_u[tmp_u][i].hID <<"\n";
+	// 	}
+	// 	// for (auto pair : label_u[tmp_u]) {
+	// 	// 	cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
+	// 	// }
+	// }
+	// if (tmp_u == 71 && tmp_v == 32) {
+	// 	cout << "next\n";
+	// }
 	for (auto pair : label_u[tmp_u]) {
+		// if (tmp_u == 71 && tmp_v == 32) {
+		// 	cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
+		// }
+
+
 		if (pair.overlap < overlap) continue;
 		// if (s.find(pair.hID) != s.end()) return true; 
+		
 		if (binary_search(s.begin(), s.end(), pair.hID)) {
 			// cout << "return true with h = " << pair.hID << ", overlap = " << pair.overlap << "\n";
 			return true;
@@ -354,7 +406,7 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 	s.clear();
 
 	if (u > n) {
-		s.insert(order[u - n]);
+		s.insert(u - n);
 	} else {
 		for (auto h : E[u]) {
 			s.insert(order[h]);

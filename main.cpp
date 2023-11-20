@@ -166,12 +166,12 @@ int main(int argc, char *argv[])
 
 		while (count < 100000) {
 			
-			// int i = rand() % graph->n + 1;
-			// int j = rand() % graph->n + 1;
-			// int k = rand() % graph->max_size + 1;
-			int i = 36;
-			int j = 15;
-			int k = 2;
+			int i = rand() % graph->n + 1;
+			int j = rand() % graph->n + 1;
+			int k = rand() % graph->max_size + 1;
+			// int i = 5;
+			// int j = 196;
+			// int k = 19;
 			string currk;
 			// if (overlap != 0) {
 			// 	currk = to_string(k);
