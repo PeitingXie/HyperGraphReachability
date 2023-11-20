@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 	cout << "max size is " << graph->max_size << "\n";
 
 	
-	for (auto overlap = 1; overlap < 6; overlap++) {
+	for (auto overlap = 0; overlap < 6; overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
 			currk = "random";
 		}
 
-		while (count < 10000) {
+		while (count < 3000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
@@ -356,8 +356,11 @@ int main(int argc, char *argv[])
 			count++;
 			
 		}
-		cout << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
-		cout << "total test case = " << total << ", true case = " << reach << "\n"; 
+		string rate = "test_result/" + folderName + "/rate.txt";
+		 std::ofstream file3(rate, std::ios::app);
+
+		file3 << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
+		file3 << "total test case = " << total << ", true case = " << reach << "\n"; 
 	}
 	
 	

@@ -138,6 +138,10 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 
 
 void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
+	vector<int> reach_check;
+	for (auto i = 0; i <= m; i++) {
+		reach_check.push_back(0);
+	}
 	int count = 0;
 	int num = 0;
 	ofstream myfile;
@@ -151,44 +155,49 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		int h = pair.hID;
 		int overlap = pair.overlap;
 
-		myfile << "current hID is " << h << ", with o = " << overlap << "\n";
-		myfile << "span_reach check for hyperedge " << u << " and " <<  h  << "\n";
+		// myfile << "current hID is " << h << ", with o = " << overlap << "\n";
+		// myfile << "span_reach check for hyperedge " << u << " and " <<  h  << "\n";
 		// if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
 		// 	continue;
 		// }
 
 		if (span_reach(h + n, u + n, overlap)) {
+			// myfile << "covered!!!\n";
+			reach_check[h] = max(reach_check[h], overlap);
 			continue;
 		}
-		myfile << "and not covered\n";
+		// myfile << "and not covered\n";
 
 		int needBFS = false;
 		for (auto v : graph_edge[idx[h]].node) {
-			// if (span_reach(idx[u] + n, v, overlap)) {
-			// 	continue;
-			// }
+			if (span_reach(idx[u] + n, v, overlap)) {
+				continue;
+			}
 			// count++;
 			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			if (v > n) {
 				add_triplet(tmpLabel, order[v - n], u, overlap, update);
 				// if (order[v - n] == 71 && u == 32) {
-				// 	// cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
+					// myfile << "add edge = " << order[v - n] << ", overlap = " << overlap <<"\n";
 				// 	cout << "size = " << tmpLabel[u].size() <<"\n";
 				
 				// }
 			} else {
-				// needBFS = true;
+				needBFS = true;
 				add_triplet(label, v, u, overlap, update);
+				// myfile << "add = " << v << ", overlap = " << overlap <<"\n";
+
 			}
 			
 		}
 
-		// if (!needBFS) continue;
+		if (!needBFS) continue;
 		map<int, int> m;
 
 		for (auto v : graph_edge[idx[h]].node) {
 			for (auto nextH : E[v]) {
 				if (order[nextH] <= u || order[nextH] == h) continue;
+				
 				if (m.find(order[nextH]) != m.end()) {
 					m[order[nextH]]++;
 				} else {
@@ -198,7 +207,10 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		}
 
 		for (auto it = m.begin(); it != m.end(); it++) {
-			
+			if (reach_check[it->first] >= min(overlap, it->second)) {
+				myfile << "pruning " << it->first << ", with o = " << min(overlap, it->second) << "\n";
+				continue;
+			}
 			Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 		}
 		// cout << "next BFS to :\n";
