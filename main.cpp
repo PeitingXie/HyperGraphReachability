@@ -161,43 +161,43 @@ int main(int argc, char *argv[])
 
 	
 		
-		int count = 0;
+		// int count = 0;
+		// int reach = 0;
 
-
-		while (count < 100000) {
+		// while (count < 100000) {
 			
-			int i = rand() % graph->n + 1;
-			int j = rand() % graph->n + 1;
-			int k = rand() % graph->max_size + 1;
-			// int i = 5;
-			// int j = 196;
-			// int k = 19;
-			string currk;
-			// if (overlap != 0) {
-			// 	currk = to_string(k);
-			// } else {
-			// 	currk = "random";
-			// }
-			cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
+		// 	// int i = rand() % graph->n + 1;
+		// 	// int j = rand() % graph->n + 1;
+		// 	// int k = rand() % graph->max_size + 1;
+		// 	int i = 14838986;
+		// 	int j = 3862771;
+		// 	int k = 1;
+		// 	string currk;
+		// 	// if (overlap != 0) {
+		// 	// 	currk = to_string(k);
+		// 	// } else {
+		// 	// 	currk = "random";
+		// 	// }
+		// 	cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
 			
-			auto res1 = alg->baseLine(i,j,k, 1);
-			// auto res1 = alg->baseline(246, 717, 125, 1);
-			cout << "baseline finished\n";
+		// 	auto res1 = alg->baseLine(i,j,k, 1);
+		// 	// auto res1 = alg->baseline(246, 717, 125, 1);
+		// 	cout << "baseline finished\n";
 
-			auto res2 = alg->span_reach(i,j,k, 1);
-			// auto res2 = alg->span_reach(246, 717, 125, 1);
+		// 	auto res2 = alg->span_reach(i,j,k, 1);
+		// 	// auto res2 = alg->span_reach(246, 717, 125, 1);
 		
 
 
-			if (res1 != res2) {
-				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-				return 0;
-			}
-			// if (res1 == true) reach++;
-			// break;
-			count++;
+		// 	if (res1 != res2) {
+		// 		cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+		// 		return 0;
+		// 	}
+		// 	if (res1 == true) reach++;
+		// 	// break;
+		// 	count++;
 			
-		}
+		// }
 	//}
 		
 	
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
 	
 	
-	/*
+	
 	std::string fullPath = argv[1];
 	size_t lastSlashPos = fullPath.find_last_of('/');
     size_t dotPos = fullPath.find_last_of('.');
@@ -234,16 +234,16 @@ int main(int argc, char *argv[])
 
 	cout << "max size is " << graph->max_size << "\n";
 
-	int reach = 0;
-	int total = 0;
-	for (auto overlap = 0; overlap < 1; overlap++) {
-		
+	
+	for (auto overlap = 1; overlap < 6; overlap++) {
+		int reach = 0;
+		int total = 0;
 		int k;
 		string currBaseOutFile;
 		string currTwoHopOutFile; 
 		
 		if (overlap == 0) {
-			k = rand() % 6 + 1;
+			k = rand() % 5 + 1;
 			currBaseOutFile = baseOutput + "Rand.txt";
 			currTwoHopOutFile = twoHopOutput + "Rand.txt";
 		} else {
@@ -306,17 +306,19 @@ int main(int argc, char *argv[])
 		// 	}
 		// }
 
-		while (count < 1000) {
+		string currk;
+		if (overlap != 0) {
+			currk = to_string(k);
+		} else {
+			currk = "random";
+		}
+
+		while (count < 10000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
-			string currk;
-			if (overlap != 0) {
-				currk = to_string(k);
-			} else {
-				currk = "random";
-			}
+			
 			cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
@@ -354,6 +356,8 @@ int main(int argc, char *argv[])
 			count++;
 			
 		}
+		cout << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
+		cout << "total test case = " << total << ", true case = " << reach << "\n"; 
 	}
 	
 	
@@ -369,7 +373,7 @@ int main(int argc, char *argv[])
 	// cout << "label query result is " << alg->span_reach(i,j,k, 1) << "\n";
 	fin.close();
 	fout.close();
-	*/
+	
 
 
 	// for (auto i = 1; i <= 8; i++) {
@@ -414,7 +418,6 @@ int main(int argc, char *argv[])
 	// }
 
 
-	cout << "test for " << argv[1] << " is finished\n";	
-	//cout << "total test case = " << total << ", true case = " << reach << "\n"; 
+
 	return 0;
 }
