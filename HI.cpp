@@ -170,9 +170,9 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 
 		int needBFS = false;
 		for (auto v : graph_edge[idx[h]].node) {
-			if (span_reach(idx[u] + n, v, overlap)) {
-				continue;
-			}
+			// if (span_reach(idx[u] + n, v, overlap)) {
+			// 	continue;
+			// }
 			// count++;
 			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			if (v > n) {

@@ -313,12 +313,15 @@ int main(int argc, char *argv[])
 			currk = "random";
 		}
 
-		while (count < 3000) {
+		while (count < 10000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
 			
+			
+
+
 			cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
