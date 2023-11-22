@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 	cout << "max size is " << graph->max_size << "\n";
 
 	
-	for (auto overlap = 0; overlap < 6; overlap++) {
+	for (auto overlap = 2; overlap < 6; overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
@@ -313,12 +313,14 @@ int main(int argc, char *argv[])
 			currk = "random";
 		}
 
-		while (count < 10000) {
+		while (count < 3000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
-			
+			// i = 64450;
+			// j = 99974;
+			// k = 4; 
 			
 
 

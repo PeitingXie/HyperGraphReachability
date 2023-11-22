@@ -50,7 +50,7 @@ private:
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
 	int neighbour[10000000];
-
+	int *visited;
 	// TILL-Index
 	
 
@@ -64,10 +64,8 @@ private:
 
 
 	//map<pair<int, int>, vector<int>> inAncestor[10000001];
-	vector<int> importantNode;
 
 	// most important node in negative cycle
-	int *special;
 
 	
 
@@ -81,7 +79,7 @@ public:
 	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
 	
-	bool span_reach(int u, int v, int overlap, bool original_id = false);
+	int span_reach(int u, int v,  bool original_id = false);
 
 	void insert(int sign);
 	void erase(int ts);
@@ -93,7 +91,7 @@ public:
 	int signUpdate(int sign1, int sign2);
 	bool isEqual(const std::pair<int, int>& element, const int val);
 
-	bool baseLine(int src, int dst, int overlap, bool original_id);
+	int baseLine(int src, int dst,  bool original_id);
 	
 	void freeBaseline(int *visited);
 	bool baseIsCovered(int sign1, int sign2);

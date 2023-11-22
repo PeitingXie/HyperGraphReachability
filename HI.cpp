@@ -19,8 +19,11 @@ SL::SL(Graph *graph)
 
 	label = new vector<Pair> [n + 1];
 	tmpLabel = new vector<Pair> [m + 1];
+	visited = new int [n + 1];
 
-
+	
+	
+	
 	for (auto i = 1; i <= m; i++) {
 		for (auto v: graph_edge[i].node) {
 			neighbour[i] += E[v].size();
@@ -95,7 +98,12 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 {
 	
 	
+	// if (v == 64450 && u == order[178758] && overlap == 4) {
+	// 	cout << "overlap 4 construct success\n";
+	// 	while (true) {
 
+	// 	}
+	// }
 
 	if (!currLabel[u].size()) {
 		currLabel[u].push_back(Pair(h, overlap));
@@ -120,17 +128,7 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 			// }
 			currLabel[u].insert(it, temp);
 		} else {
-			// if (u == 71 && h == 32) {
-			// 	// cout << "insert 71 32\n";
-			// 	cout << "find " << it->hID << "\n";
-			// 	for (auto p : currLabel[u]) {
-			// 		cout << "h = " << p.hID << ", with overlap = " << p.overlap << "\n";
-			// 	}
-			// 	if (it == currLabel[u].end()) {
-			// 		"equal = end\n";
-			// 	}
-			// }
-			// cout << "123\n";
+
 			it->overlap = max(it->overlap, overlap);
 		}
 	}
@@ -138,10 +136,6 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 
 
 void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
-	vector<int> reach_check;
-	for (auto i = 0; i <= m; i++) {
-		reach_check.push_back(0);
-	}
 	int count = 0;
 	int num = 0;
 	ofstream myfile;
@@ -161,14 +155,21 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		// 	continue;
 		// }
 
-		if (span_reach(h + n, u + n, overlap)) {
-			// myfile << "covered!!!\n";
-			reach_check[h] = max(reach_check[h], overlap);
+
+		int max_cover = span_reach(h + n, u + n);
+		if (max_cover >= overlap) {
+			for (auto v : graph_edge[idx[h]].node) {
+				if (v > n) continue;
+				if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
+					visited[v] = -max_cover;
+				}	
+			}
 			continue;
 		}
-		// myfile << "and not covered\n";
 
-		int needBFS = false;
+
+		// bool needBFS = false;
+
 		for (auto v : graph_edge[idx[h]].node) {
 			// if (span_reach(idx[u] + n, v, overlap)) {
 			// 	continue;
@@ -177,24 +178,18 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			if (v > n) {
 				add_triplet(tmpLabel, order[v - n], u, overlap, update);
-				// if (order[v - n] == 71 && u == 32) {
-					// myfile << "add edge = " << order[v - n] << ", overlap = " << overlap <<"\n";
-				// 	cout << "size = " << tmpLabel[u].size() <<"\n";
-				
-				// }
-			} else {
-				needBFS = true;
-				add_triplet(label, v, u, overlap, update);
-				// myfile << "add = " << v << ", overlap = " << overlap <<"\n";
 
+			} else {
+				if (visited[v] == 0) visited[v] = overlap;
+				// add_triplet(label, v, u, overlap, update);
 			}
 			
 		}
 
-		if (!needBFS) continue;
 		map<int, int> m;
 
 		for (auto v : graph_edge[idx[h]].node) {
+			if (v > n) continue;
 			for (auto nextH : E[v]) {
 				if (order[nextH] <= u || order[nextH] == h) continue;
 				
@@ -207,14 +202,17 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		}
 
 		for (auto it = m.begin(); it != m.end(); it++) {
-			if (reach_check[it->first] >= min(overlap, it->second)) {
-				myfile << "pruning " << it->first << ", with o = " << min(overlap, it->second) << "\n";
-				continue;
-			}
 			Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 		}
 		// cout << "next BFS to :\n";
 		m.clear();
+	}
+
+
+	for (auto i = 1; i <= n; i++) {
+		if (visited[i] > 0) {
+			add_triplet(label, i, u, visited[i], update);
+		}
 	}
 	myfile.close();
 }
@@ -322,6 +320,7 @@ void SL::construct() {
 		// cout << "construct for hID = " << i << " is finished\n";
 		
 		auto start_time = std::chrono::high_resolution_clock::now();
+		fill(visited, visited + n + 1, 0);
 		construct_for_a_vertex(graph_edge, i, false);
 		auto end_time = std::chrono::high_resolution_clock::now();
 		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
@@ -351,6 +350,10 @@ void SL::construct() {
 	// }
 
 	delete[] tmpLabel;
+	delete[] visited;
+	for (auto i = 1; i<=m; i++) {
+		graph_edge[i].node.pop_back();
+	}
 	// while (true) {
 
 	// }
@@ -374,14 +377,14 @@ void SL::construct() {
 
 
 
-bool SL::span_reach(int u, int v, int overlap, bool original_id) {
+int SL::span_reach(int u, int v, bool original_id) {
 	// cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
 	int init_u = u;
 	int init_v = v;
 	if (original_id)
 	{
-		if (u <= n) u = (*vertex_map)[u];
-		if (v <= n) v = (*vertex_map)[v];		
+		u = (*vertex_map)[u];
+		v = (*vertex_map)[v];		
 	}
 	
 	vector<Pair> *label_u, *label_v;
@@ -403,72 +406,10 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 		label_v = label;
 	}
 	
-	// cout << "index of 38225 is : " << idx[38225] << "\n";
-	// cout << "order of 2578 is : " << order[2578] << "\n";
 	
-	/*
-	set<int> s;
-	if (v > n) {
-		s.insert(v - n);
-		// if (tmp_u == 71 && tmp_v == 32) {
-		// 	cout << "insert " << v-n <<"\n";
-		// }
-	} else {
-		for (auto h : E[v]) {
-			s.insert(order[h]);
-		}
-	}
-
-	// if (tmp_u == 71 && tmp_v == 32) {
-	// 	cout << "label_u[tmp_u].size() = " << label_u[tmp_u].size() <<"\n";
-	// 	for (int i = 0; i < label_u[tmp_u].size(); i++) {
-	// 		// if (label_u[tmp_u][i].hID == 32) {
-	// 		cout << "ID = " << label_u[tmp_u][i].hID << ", overlap = " << label_u[tmp_u][i].overlap << ", required " << overlap << "\n";
-	// 		// }
-	// 		// cout << "label_u[tmp_u]["  << i << "]" << label_u[tmp_u][i].hID <<"\n";
-	// 	}
-	// 	// for (auto pair : label_u[tmp_u]) {
-	// 	// 	cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
-	// 	// }
-	// }
-	// if (tmp_u == 71 && tmp_v == 32) {
-	// 	cout << "next\n";
-	// }
-	for (auto pair : label_u[tmp_u]) {
-		// if (tmp_u == 71 && tmp_v == 32) {
-		// 	cout << "pair.hID = " << pair.hID << " overlap = " << pair.overlap <<"\n";
-		// }
+	int overlap = 0;
 
 
-		if (pair.overlap < overlap) continue;
-		// if (s.find(pair.hID) != s.end()) return true; 
-		
-		if (binary_search(s.begin(), s.end(), pair.hID)) {
-			// cout << "return true with h = " << pair.hID << ", overlap = " << pair.overlap << "\n";
-			return true;
-		}
-	}
-
-	s.clear();
-
-	if (u > n) {
-		s.insert(u - n);
-	} else {
-		for (auto h : E[u]) {
-			s.insert(order[h]);
-		}
-	}
-
-
-	for (auto pair : label_v[tmp_v]) {
-		if (pair.overlap < overlap) continue;
-		// if (s.find(pair.hID) != s.end()) return true; 
-		if (binary_search(s.begin(), s.end(), pair.hID)) {
-			// cout << "return true with h = " << pair.hID << ", overlap = " << pair.overlap << "\n";
-			return true;
-		}
-	}
-	*/
 	auto srcIt = label_u[tmp_u].begin();
 	auto dstIt = label_v[tmp_v].begin();
 	while (srcIt != label_u[tmp_u].end() && dstIt != label_v[tmp_v].end()) {
@@ -477,46 +418,47 @@ bool SL::span_reach(int u, int v, int overlap, bool original_id) {
 		} else if (srcIt->hID < dstIt->hID) {
 			srcIt++;
 		} else {
-			if (srcIt->overlap < overlap || dstIt->overlap < overlap) {
-				srcIt++;
-				dstIt++;
-				continue;
+			if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+				overlap = min(srcIt->overlap, dstIt->overlap);
 			}
-			// cout << "return true with h = " << srcIt->hID << ", overlap = " << srcIt->overlap << "\n";
-			return true;
+			srcIt++;
+			dstIt++;
 		}
 
-		// if (init_u == 246 && init_v == 717 && srcIt->hID < 700 && dstIt->hID < 700) {
-		// 	cout << "current comparison : u = " << srcIt->hID << ", v = " << dstIt->hID << "\n";
-		// }
 	}
 	
 	// srcIt = label_u[u].begin();
 	// dstIt = label_v[v].begin();
 	
-	// if (init_u == 246) {
-	// 	cout << "in label[246]:\n";
-	// 	while (srcIt != label_u[u].end() && srcIt->hID < 1000) {
-	// 		cout << srcIt->hID << ", " << srcIt->overlap << "\n";
-	// 		if (srcIt->hID == 620 && srcIt->overlap >= 125) cout << "111111111111111111111111\n";
+	// ofstream myfile;
+  	// myfile.open ("log.txt");
+
+	// myfile << "for Label[u]:\n";
+	// if (init_u == 64450 && init_v == 99974 && overlap == 4) {
+	
+	// 	while (srcIt != label_u[u].end()) {
+	// 		myfile << srcIt->hID << ", " << srcIt->overlap << "\n";
 	// 		srcIt++;
 	// 	}
 	// }
-	// if (init_v == 717) {
-	// 	cout << "in label[717]:\n";
-	// 	while (dstIt != label_v[v].end() && dstIt->hID < 1000) {
-	// 		cout << dstIt->hID << ", " << dstIt->overlap << "\n";
-	// 		if (dstIt->hID == 620 && dstIt->overlap >= 125) cout << "222222222222222222222222\n";
+
+	// myfile << "for Label[v]:\n";
+
+	// if (init_u == 64450 && init_v == 99974 && overlap == 4) {
+	
+	// 	while (dstIt != label_v[v].end()) {
+	// 		myfile << dstIt->hID << ", " << dstIt->overlap << "\n";
 	// 		dstIt++;
 	// 	}
+	// 	myfile << "v is " << v << ", tmp_v is " << tmp_v << "\n";
+	// 	return true;
 	// }
-	return false;
+	return overlap;
 }
 
 
 
-
-bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
+int SL::baseLine(int src, int dst, bool original_id) {
 	
 	if (original_id)
 	{
@@ -537,36 +479,36 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 		in_visit.push_back(0);
 		out_visit.push_back(0);
 	}
-	queue<pair<int, int>> Q_in, Q_out;
+	priority_queue<Pair_in_queue> Q_in, Q_out;
 	// cout << "try to query for " << src << " and " << dst << " with t = " << overlap << "\n";
+	// cout << "for dst:\n";
 	for (auto h : E[dst]) {
-		// cout << "insert " << h << " to Q_in\n";
-		if (graph_edge[h].length < overlap) continue;
-		Q_in.push(make_pair(h, graph_edge[h].length));
+		// cout << "insert " << h << " with o = " << graph_edge[h].length << "\n";
+		Q_in.push(Pair_in_queue(h, graph_edge[h].length));
 	}
+
+	// cout << "for src:\n";
 	for (auto h : E[src]) {
-		// cout << "insert " << h << " to Q_out\n";
-		if (graph_edge[h].length < overlap) continue;
-		Q_out.push(make_pair(h, graph_edge[h].length));
+		// cout << "insert " << h << " with o = " << graph_edge[h].length << "\n";
+		Q_out.push(Pair_in_queue(h, graph_edge[h].length));
 	}
-	
+	int result = 0;
 	int token = 0;
 	while (!Q_in.empty() || !Q_out.empty()) {
 		if (!token) {
-			// cout << "now switch to in neighbour\n";
 			int size = Q_in.size();
-			// cout << "size = " << size << "\n";
 			for (auto i = 0; i < size; i++) {
-				auto pair = Q_in.front();
-				auto h = pair.first;
-				auto o = pair.second;
-				// cout << "get edge h = " << h << " with overlap = " << o << "\n";
+				auto pair = Q_in.top();
+				auto h = pair.hID;
+				auto o = pair.overlap;
+				// cout << "from in: get h = " << h << ", o = " << o << "\n";
 				Q_in.pop();
-				// if (h == 2578) cout << "1 detect 2578 with" << o << "\n";
-				
-				if (out_visit[h]) return true;
-				if (in_visit[h]) continue;
-				in_visit[h] = 1;
+
+				if (out_visit[h]) {
+					result = max(result, min(o, out_visit[h]));
+				}
+				if (in_visit[h] >= o) continue;
+				in_visit[h] = o;
 				
 				// for (auto nextPair : neighbour[h]) {
 				// 	if (nextPair.second < overlap) continue;
@@ -581,7 +523,7 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 					if (v > n) continue;
 					for (auto nextH : E[v]) {
 						// if (h <= i) continue;
-						if (in_visit[nextH]) continue;
+						// if (in_visit[nextH]) continue;
 						if (m.find(nextH) != m.end()) {
 							m[nextH]++;
 						} else {
@@ -591,9 +533,11 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 				}
 
 				for (auto it = m.begin(); it != m.end(); it++) {
-					if (it->second < overlap) continue;
-					if (in_visit[it->first]) continue;
-					Q_in.push(make_pair(it->first, it->second));
+					
+
+					// if (it->second < overlap) continue;
+					// if (in_visit[it->first]) continue;
+					Q_in.push(Pair_in_queue(it->first, min(it->second, o)));
 				}
 				m.clear();
 			}
@@ -604,16 +548,20 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 			// cout << "now switch to out neighbour\n";
 			// cout << "size = " << size << "\n";
 			for (auto i = 0; i < size; i++) {
-				auto pair = Q_out.front();
-				auto h = pair.first;
-				auto o = pair.second;
+				auto pair = Q_out.top();
+				auto h = pair.hID;
+				auto o = pair.overlap;
+				// cout << "from out: get h = " << h << ", o = " << o << "\n";
 				// cout << "get edge h = " << h << " with overlap = " << o << "\n";
 				// if (h == 2578) cout << "2 detect 2578 with" << o << "\n";
 				Q_out.pop();
 				
-				if (in_visit[h]) return true;
-				if (out_visit[h]) continue;
-				out_visit[h] = 1;
+				if (in_visit[h]) {
+					result = max(result, min(o, in_visit[h]));
+				}
+				
+				if (out_visit[h] >= o) continue;
+				out_visit[h] = o;
 				// for (auto nextPair : neighbour[h]) {
 				// 	if (nextPair.second < overlap) continue;
 				// 	if (out_visit[nextPair.first]) continue;
@@ -628,7 +576,7 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 					if (v > n) continue;
 					for (auto nextH : E[v]) {
 						// if (h <= i) continue;
-						if (out_visit[nextH]) continue;
+						// if (out_visit[nextH]) continue;
 						if (m.find(nextH) != m.end()) {
 							m[nextH]++;
 						} else {
@@ -638,18 +586,17 @@ bool SL::baseLine(int src, int dst, int overlap, bool original_id) {
 				}
 
 				for (auto it = m.begin(); it != m.end(); it++) {
-					if (it->second < overlap) continue;
-					if (out_visit[it->first]) continue;
-					Q_out.push(make_pair(it->first, it->second));
-				}
-				m.clear();
-
 
 				
+					// if (it->second < overlap) continue;
+					// if (out_visit[it->first]) continue;
+					Q_out.push(Pair_in_queue(it->first, min(it->second, o)));
+				}
+				m.clear();	
 			}
 			token = 0;
 		}
 
 	}
-	return false;
+	return result;
 }	
