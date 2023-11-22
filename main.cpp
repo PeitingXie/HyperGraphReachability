@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 	cout << "max size is " << graph->max_size << "\n";
 
 	
-	for (auto overlap = 2; overlap < 6; overlap++) {
+	for (auto overlap = 0; overlap < 1; overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
@@ -313,22 +313,23 @@ int main(int argc, char *argv[])
 			currk = "random";
 		}
 
-		while (count < 3000) {
+		while (count < 10000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
-			// i = 64450;
-			// j = 99974;
+			// i = 129822;
+			// j = 129143;
 			// k = 4; 
-			
+			// i = 2;
+			// j = 7;
 
 
 			cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
 			
-			auto res1 = alg->baseLine(i,j,k, 1);
+			auto res1 = alg->baseLine(i,j, 1);
 			cout << "baseline finished\n";
 			auto end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
@@ -342,7 +343,7 @@ int main(int argc, char *argv[])
 			
 			
 			start_time = std::chrono::high_resolution_clock::now();
-			auto res2 = alg->span_reach(i,j,k, 1);
+			auto res2 = alg->span_reach(i,j,1);
 			end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
@@ -357,15 +358,23 @@ int main(int argc, char *argv[])
 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
 				return 0;
 			}
-			if (res1 == true) reach++;
+
+			string rate = "test_result/" + folderName + "/rate.txt";
+			std::ofstream file3(rate, std::ios::app);
+			file3 << res1 << "\n";
+			file3.close();
+
+			if (res1 > 1) reach++;
 			count++;
 			
 		}
-		string rate = "test_result/" + folderName + "/rate.txt";
-		 std::ofstream file3(rate, std::ios::app);
+		
 
-		file3 << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
-		file3 << "total test case = " << total << ", true case = " << reach << "\n"; 
+		// file3 << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
+		// file3 << "total test case = " << total << ", true case = " << reach << "\n"; 
+
+		cout << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
+		cout << "total test case = " << total << ", true case = " << reach << "\n"; 
 	}
 	
 	
@@ -408,6 +417,7 @@ int main(int argc, char *argv[])
 	// }
 
 	cout << "================================PASS================================\n";
+
 	//
 		//fout << "Hello world\n";
 
