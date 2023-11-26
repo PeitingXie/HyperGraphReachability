@@ -49,8 +49,9 @@ private:
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
-	int neighbour[10000000];
+	long long neighbour[10000000];
 	int *visited;
+	int *visited_h;
 	// TILL-Index
 	
 

@@ -19,6 +19,7 @@
 #include <chrono>
 #include <time.h>
 #include <filesystem>
+#include <cmath>
 using namespace std;
 
 struct HyperEdge
