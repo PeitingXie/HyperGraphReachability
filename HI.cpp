@@ -263,16 +263,17 @@ void SL::construct() {
 		construct_for_a_vertex(graph_edge, i, false);
 		auto end_time = std::chrono::high_resolution_clock::now();
 		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-		// if (i % 1000 == 1) {
+		if (i % 1000 == 1) {
 		cout << "Edge  " << i << " has ben constructed " << "\n";
-		// }
+		}
+		std::priority_queue<Pair_in_queue>().swap(Q);
 		
 	}
 	
 	
 	myConstructionfile.close();
 	
-	cout << "construction finished\n";
+
 
 
 	// cout << "order is :\n";
@@ -289,16 +290,46 @@ void SL::construct() {
 	// }
 
 	delete[] tmpLabel;
-	delete[] visited;
-	delete[] visited_h;
 	for (auto i = 1; i<=m; i++) {
 		graph_edge[i].node.pop_back();
 		graph_edge[i].node.shrink_to_fit();
 	}
+	cout << "construction finished\n";
+	// int c;
+	// cin >> c;
 	// while (true) {
 
 	// }
 
+	// cout << "n = " << n << "\n";
+	// for (auto i = 1; i <= n; i++) {
+	// 	cout << i << "->" << (*vertex_map)[i] << "\n"; 
+	// }
+
+	// cout << "order:\n";
+	// for (auto i = 1; i <= m; i++) {
+	// 	cout << idx[i] << " ";
+	// }
+	// cout << "\n";
+
+
+	// cout << "current Index is :\n";
+	// for (auto i = 1; i <= n; i++) {
+	// 	cout << "for L(" << i << "):\n";
+	// 	for (auto pair : label[i]) {
+	// 		cout << "(" << idx[pair.hID] << ", " << pair.overlap << ")\n";
+	// 	}
+	// }
+
+
+
+	delete[] visited;
+	delete[] visited_h;
+	
+	
+	// while (true) {
+
+	// }
 
 	
 

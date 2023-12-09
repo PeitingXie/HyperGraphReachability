@@ -76,8 +76,46 @@ Graph::Graph(char *graph_file, bool _directed)
 	cout << "total n = " << n << ", m" << num + m << "\n";
 	
 	fin.close();
+
+	int singleNode = 0;
+	int effect = 0;
+	for (auto i = 1; i <= m; i++) {
+		// cout << "i = " << i << "\n";
+		int head = -1;
+		for (auto v : graph_edge[i].node) {
+			if (E[v].size() == 1 ) {
+				head = v;
+				effect++;
+				break;
+			}
+		}
+		if (head == -1) continue;
+		// if (head == -1) head = graph_edge[i].node[0];
+		for (auto it = graph_edge[i].node.begin(); it != graph_edge[i].node.end();) {
+			if (E[*it].size() == 1 && *it != head) {
+				// cout << "1\n";
+				vertex_map[vertex_id[*it]] = vertex_map[vertex_id[head]];
+				it = graph_edge[i].node.erase(it);
+				// it++;
+				singleNode++;
+			} else {
+				++it;
+			}
+			
+		}
+		// graph_edge[i].node.shrink_to_fit();
+
+	}
+	cout << "effect on " << effect << " edges\n";
+	// while(true) {
+
+	// }
+
 	// double avg = 0;
 	// for (auto i = 1; i <= m; i++) {
+	// 	if (i % 1000 == 1) {
+	// 		cout << i << "\n";
+	// 	}
 	// 	set<int> s;
 	// 	for (auto v : graph_edge[i].node) {
 	// 		for (auto k : E[v]) {
