@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
 			auto start_time = std::chrono::high_resolution_clock::now();
 			
 			auto res1 = alg->baseLine(i,j, 1);
-			cout << "baseline finished\n";
+			cout << "baseline finished, result is " << res1 << "\n";
 			auto end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
