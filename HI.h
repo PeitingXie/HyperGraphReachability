@@ -37,7 +37,7 @@ private:
 
 	// graph and reversed graph
 	
-	vector<Pair> *label, *tmpLabel;
+	vector<Pair> *label, *tmpLabel, *ete_label;
 	
 
 
@@ -52,6 +52,10 @@ private:
 	long long neighbour[10000000];
 	int *visited;
 	int *visited_h;
+
+	int *temp, *rank, *idx2;
+
+	vector<int> *tmpE;
 	// TILL-Index
 	
 
@@ -81,6 +85,8 @@ public:
 	
 	
 	int span_reach(int u, int v,  bool original_id = false);
+	int reach(int src, int dst, bool original_id);
+	int ete_reach(int src, int dst, bool original_id = false);
 
 	void insert(int sign);
 	void erase(int ts);

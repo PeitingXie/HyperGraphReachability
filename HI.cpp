@@ -18,6 +18,7 @@ SL::SL(Graph *graph)
 	//theta = 2000000000;
 
 	label = new vector<Pair> [n + 1];
+	ete_label = new vector<Pair> [m + 1];
 	tmpLabel = new vector<Pair> [m + 1];
 	visited = new int [n + 1];
 	visited_h = new int [m + 1];
@@ -42,7 +43,35 @@ SL::SL(Graph *graph)
 	for (int i = 1; i <= m; i++)
 		order[idx[i]] = i;
 
+	// temp = new int [n + 1];
+	// iota(temp + 1, temp + n + 1, 1);
+	// for (auto i = 1; i <= m; i++) {
+	// 	for (auto v : graph_edge[idx[i]].node) {
+	// 		temp[v] = m;
+	// 	}
+	// }
 
+	// rank = new int [m + 1];
+	// iota(rank + 1, rank + m + 1, 1);
+	// for (auto i = 1; i <= m; i++) {
+	// 	for (auto v : graph_edge[idx[i]].node) {
+	// 		rank[i] += (m - temp[v] + i);
+	// 	}
+	// 	rank[i] /= graph_edge[i].length;
+	// 	rank[i] *= neighbour[idx[i]];
+	// }
+
+	
+
+	// iota(idx + 1, idx + m + 1, 1);
+	// sort(idx + 1, idx + m + 1, [&](int i, int j){return (long long)(rank[i] + 1) > (long long)(rank[j] + 1);});
+
+	// iota(order + 1, order + m + 1, 1);
+	// for (int i = 1; i <= m; i++)
+	// 	order[idx[i]] = i;
+	
+	// delete[] temp;
+	// delete[] rank;
 
 
 
@@ -168,7 +197,7 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			continue;
 		}
 
-
+		add_triplet(ete_label, h, u, overlap, true);
 		// bool needBFS = false;
 
 		for (auto v : graph_edge[idx[h]].node) {
@@ -237,6 +266,25 @@ void SL::construct() {
 
 
 	cout << "ready to construct\n";
+
+
+	// int c;
+	// cin >> c;
+	// tmpE = new vector<int> [n+1];
+	// for (int i = 1; i <= n; i++) {
+	// 	for (auto v : E[i]) {
+	// 		tmpE[i].push_back(v);
+	// 	}
+	// }
+	
+	// // delete[] label;
+	// // delete[] tmpE;
+	// // tmpE = nullptr;
+	// cout << "construction finished\n";
+	// while (true) {
+
+	// }
+
 
 	int singleNode = 0;
 
@@ -326,11 +374,39 @@ void SL::construct() {
 	delete[] visited;
 	delete[] visited_h;
 	
-	
-	// while (true) {
+	double vte = 0;
+	double ete = 0;
 
+	for (auto i = 1; i <=n; i++) {
+		vte += label[i].size();
+	}
+	vte /= n;
+
+	for (auto i = 1; i <= m; i++) {
+		ete += ete_label[i].size();
+	}
+	ete /= m;
+	cout << "average vte = " << vte << "\n";
+	cout << "average ete = " << ete << "\n";
+
+
+
+	// int c;
+	// cin >> c;
+	// tmpE = new vector<int> [n+1];
+	// for (int i = 1; i <= n; i++) {
+	// 	for (auto v : E[i]) {
+	// 		tmpE[i].push_back(v);
+	// 	}
 	// }
+	
+	delete[] label;
+	// delete[] tmpE;
+	// tmpE = nullptr;
+	cout << "construction finished\n";
+	while (true) {
 
+	}
 	
 
 
@@ -430,6 +506,76 @@ int SL::span_reach(int u, int v, bool original_id) {
 
 
 
+int SL::ete_reach(int src, int dst, bool original_id) {
+	if (original_id)
+	{
+		src = (*vertex_map)[src];
+		dst = (*vertex_map)[dst];
+	}
+	int overlap = 0;
+	if (src == dst) {
+		overlap = 1;
+	}
+	for (auto h_u : E[src]) {
+		h_u = order[h_u];
+		for (auto h_v : E[dst]) {
+			h_v = order[h_v];
+			auto srcIt = ete_label[h_u].begin();
+			auto dstIt = ete_label[h_v].begin();
+			while (srcIt != ete_label[h_u].end() && dstIt != ete_label[h_v].end()) {
+				if (srcIt->hID > dstIt->hID ) {
+					dstIt++;
+				} else if (srcIt->hID < dstIt->hID) {
+					srcIt++;
+				} else {
+					if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+						overlap = min(srcIt->overlap, dstIt->overlap);
+					}
+					srcIt++;
+					dstIt++;
+				}
+
+			}
+		}
+	}
+	return overlap;
+}
+
+
+int SL::reach(int src, int dst, bool original_id) {
+	if (original_id)
+	{
+		src = (*vertex_map)[src];
+		dst = (*vertex_map)[dst];		
+	}
+
+	int overlap = 0;
+	if (src == dst) {
+		overlap = 1;
+	}
+	auto srcIt = label[src].begin();
+	auto dstIt = label[dst].begin();
+	while (srcIt != label[src].end() && dstIt != label[dst].end()) {
+		if (srcIt->hID > dstIt->hID ) {
+			dstIt++;
+		} else if (srcIt->hID < dstIt->hID) {
+			srcIt++;
+		} else {
+			if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+				overlap = min(srcIt->overlap, dstIt->overlap);
+			}
+			srcIt++;
+			dstIt++;
+		}
+
+	}
+	return overlap;
+}
+
+
+
+
+
 int SL::baseLine(int src, int dst, bool original_id) {
 	
 	if (original_id)
@@ -466,6 +612,11 @@ int SL::baseLine(int src, int dst, bool original_id) {
 	}
 	int result = 0;
 	int token = 0;
+
+	if (src == dst) {
+		result = 1;
+	}
+
 	while (!Q_in.empty() || !Q_out.empty()) {
 		if (!token) {
 			int size = Q_in.size();

@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 	
 	cout << "graph init complete\n";
 
+
+
 	alg -> construct();
 	
 	cout << "construct complete\n";
@@ -221,16 +223,17 @@ int main(int argc, char *argv[])
 
 	
 
-	if (!std::filesystem::exists("test_result/" + folderName)) {
+	if (!std::filesystem::exists("ete_test_result/" + folderName)) {
         try {
-            std::filesystem::create_directory("test_result/" + folderName);
+            std::filesystem::create_directory("ete_test_result/" + folderName);
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "创建文件夹时出现错误: " << e.what() << std::endl;
         }
     }
 
-	string baseOutput = "test_result/" + folderName + "/basetime";
-	string twoHopOutput = "test_result/" + folderName + "/spanReachTime";
+	string baseOutput = "ete_test_result/" + folderName + "/basetime";
+	string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
+	string eteOutput = "ete_test_result/" + folderName + "/eteTime";
 
 	cout << "max size is " << graph->max_size << "\n";
 
@@ -241,15 +244,17 @@ int main(int argc, char *argv[])
 		int k;
 		string currBaseOutFile;
 		string currTwoHopOutFile; 
-		
+		string currEteOutFile; 
 		if (overlap == 0) {
 			k = rand() % 5 + 1;
 			currBaseOutFile = baseOutput + "Rand.txt";
 			currTwoHopOutFile = twoHopOutput + "Rand.txt";
+			currEteOutFile = eteOutput + "Rand.txt";
 		} else {
 			k = overlap;
 			currBaseOutFile = baseOutput + to_string(k) + ".txt";
 			currTwoHopOutFile = twoHopOutput + to_string(k) + ".txt";
+			currEteOutFile = eteOutput + to_string(k) + ".txt";
 		}
 
 		std::ofstream outputFile(currBaseOutFile, std::ios::trunc);
@@ -258,6 +263,8 @@ int main(int argc, char *argv[])
 		std::ofstream outputFile2(currTwoHopOutFile, std::ios::trunc);
 		outputFile2.close();
 
+		std::ofstream outputFile3(currEteOutFile, std::ios::trunc);
+		outputFile3.close();
 
 		int count = 0;
 
@@ -313,13 +320,13 @@ int main(int argc, char *argv[])
 			currk = "random";
 		}
 
-		while (count < 10000) {
+		while (count < 200000) {
 			total++;
 			int i = rand() % graph->n + 1;
 			int j = rand() % graph->n + 1;
 			
-			// i = 129822;
-			// j = 129143;
+			// i = 857;
+			// j = 2636;
 			// k = 4; 
 			// i = 2;
 			// j = 7;
@@ -329,21 +336,22 @@ int main(int argc, char *argv[])
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
 			
-			auto res1 = alg->baseLine(i,j, 1);
-			cout << "baseline finished, result is " << res1 << "\n";
+			// auto res1 = alg->baseLine(i,j, 1);
+			auto res1 = 0;
+			cout << "baseline finished\n";
 			auto end_time = std::chrono::high_resolution_clock::now();
-			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 
 
-			std::ofstream myfile(currBaseOutFile, std::ios::app);
+			// std::ofstream myfile(currBaseOutFile, std::ios::app);
 			
-			myfile << elapsed_time_base.count() << "\n";
-			myfile.close();
+			// myfile << elapsed_time_base.count() << "\n";
+			// myfile.close();
 			
 			
 			start_time = std::chrono::high_resolution_clock::now();
-			auto res2 = alg->span_reach(i,j,1);
+			auto res2 = alg->reach(i,j,1);
 			end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
@@ -354,17 +362,36 @@ int main(int argc, char *argv[])
 			myfile2.close();
 
 
-			if (res1 != res2) {
-				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+			// if (res1 != res2) {
+			// 	cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
+			// 	return 0;
+			// }
+			
+			
+			start_time = std::chrono::high_resolution_clock::now();
+			auto res3 = alg->ete_reach(i, j, 1);
+			end_time = std::chrono::high_resolution_clock::now();
+			elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			
+			std::ofstream myfile3(currEteOutFile, std::ios::app);
+			myfile3 << elapsed_time_span.count() << "\n";
+			myfile3.close();
+
+
+
+			if (res2 != res3) {
+				cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
 				return 0;
 			}
+			cout << "result is " << res2 << "\n";
 
-			string rate = "test_result/" + folderName + "/rate.txt";
-			std::ofstream file3(rate, std::ios::app);
-			file3 << res1 << "\n";
-			file3.close();
 
-			if (res1 > 1) reach++;
+			string rate = "ete_test_result/" + folderName + "/rate.txt";
+			std::ofstream file4(rate, std::ios::app);
+			file4 << res2 << "\n";
+			file4.close();
+
+			if (res2 > 1) reach++;
 			count++;
 			
 		}

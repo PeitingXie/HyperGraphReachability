@@ -36,6 +36,7 @@ Graph::Graph(char *graph_file, bool _directed)
     
 	int num = 0;
 	int count = 0;
+	int maxESize = 0;
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
 
@@ -54,6 +55,8 @@ Graph::Graph(char *graph_file, bool _directed)
 			num++;
 			continue;
 		} 
+
+		// maxESize = max(tokens.size(), maxESize);
 
 		int currSize = tokens.size();
 		max_size = max(max_size, currSize);
@@ -107,6 +110,20 @@ Graph::Graph(char *graph_file, bool _directed)
 
 	}
 	cout << "effect on " << effect << " edges\n";
+
+
+	cout << "max E size is " << max_size << "\n";
+	int maxDeg = 0;
+	double avgDeg;
+	for (auto i = 1; i <= n; i++) {
+		int currSize = E[i].size();
+		maxDeg = max(currSize, maxDeg);
+		avgDeg += E[i].size();
+	}
+	avgDeg /= n;
+	cout << "Max Degree is " << maxDeg << "\n";
+	cout << "Avg Degree is " << avgDeg << "\n";
+
 	// while(true) {
 
 	// }
