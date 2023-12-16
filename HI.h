@@ -37,12 +37,11 @@ private:
 
 	// graph and reversed graph
 	
-	vector<Pair> *label, *tmpLabel;
+	vector<Pair> *label, *tmpLabel, *ete_label;
 	
 
 
-	// in-degree and out-degree
-	int *d_in, *d_out;
+
 
 	int *idx; // order --> ID
 	int *order; // ID --> order
@@ -50,8 +49,13 @@ private:
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
-	vector<pair<int, int>> neighbour[10000000];
+	long long neighbour[10000000];
+	int *visited;
+	int *visited_h;
 
+	int *temp, *rank, *idx2;
+
+	vector<int> *tmpE;
 	// TILL-Index
 	
 
@@ -65,10 +69,8 @@ private:
 
 
 	//map<pair<int, int>, vector<int>> inAncestor[10000001];
-	vector<int> importantNode;
 
 	// most important node in negative cycle
-	int *special;
 
 	
 
@@ -79,10 +81,12 @@ public:
 
 	void construct();
 	void construct_for_a_vertex(HyperEdge * head, int u, bool update);
-	void add_triplet(vector<Pair> *label, int u, int h, int overlap, bool update);
+	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
 	
-	bool span_reach(int u, int v, int overlap, bool original_id = false);
+	int span_reach(int u, int v,  bool original_id = false);
+	int reach(int src, int dst, bool original_id);
+	int ete_reach(int src, int dst, bool original_id = false);
 
 	void insert(int sign);
 	void erase(int ts);
@@ -94,7 +98,7 @@ public:
 	int signUpdate(int sign1, int sign2);
 	bool isEqual(const std::pair<int, int>& element, const int val);
 
-	bool baseLine(int src, int dst, int overlap, bool original_id);
+	int baseLine(int src, int dst,  bool original_id);
 	
 	void freeBaseline(int *visited);
 	bool baseIsCovered(int sign1, int sign2);
