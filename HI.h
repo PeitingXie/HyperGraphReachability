@@ -52,7 +52,7 @@ private:
 	long long neighbour[10000000];
 	int *visited;
 	int *visited_h;
-	int *cover_h;
+
 	int *temp, *rank, *idx2;
 
 	vector<int> *tmpE;
@@ -84,10 +84,10 @@ public:
 	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
 	
-	int span_reach(int u, int v,  bool original_id = false);
+	int span_reach(int u, int v, int k,  bool original_id = false);
 	int reach(int src, int dst, bool original_id);
 	int ete_reach(int src, int dst, bool original_id = false);
-
+	int ete_edge_reach(int src, int dst);
 	void insert(int sign);
 	void erase(int ts);
 
