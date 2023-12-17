@@ -137,9 +137,6 @@ void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool up
 
 	if (!currLabel[u].size()) {
 		currLabel[u].push_back(Pair(h, overlap));
-		if (u == 71 && h == 32) {
-			cout << "insert empty 71 32\n";
-		}
 	} else {
 		
 
@@ -186,32 +183,34 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		// }
 
 		visited_h[h] = u;
-		int max_cover = span_reach(h + n, u + n);
+		int max_cover = span_reach(h + n, u + n, 0);
+		// int max_cover = ete_edge_reach(h, u);
 		if (max_cover >= overlap) {
-			for (auto v : graph_edge[idx[h]].node) {
-				if (v > n) continue;
-				if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
-					visited[v] = -max_cover;
-				}	
-			}
+			// for (auto v : graph_edge[idx[h]].node) {
+			// 	if (v > n) continue;
+			// 	if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
+			// 		visited[v] = -max_cover;
+			// 	}	
+			// }
 			continue;
 		}
 
 		add_triplet(ete_label, h, u, overlap, true);
-		// bool needBFS = false;
 
 		for (auto v : graph_edge[idx[h]].node) {
-			// if (span_reach(idx[u] + n, v, overlap)) {
-			// 	continue;
-			// }
-			// count++;
-			// myfile << "add Label(" << v << ") = (" << h << ", " << overlap << ")\n";
 			if (v > n) {
 				add_triplet(tmpLabel, order[v - n], u, overlap, update);
 
 			} else {
-				if (visited[v] == 0) visited[v] = overlap;
-				// add_triplet(label, v, u, overlap, update);
+				
+				if (visited[v] == 0) {
+					visited[v] = overlap;
+					if (span_reach(v, u + n, overlap - 1) >= overlap) {
+						continue;
+					}
+					add_triplet(label, v, u, overlap, update);
+					
+				}
 			}
 			
 		}
@@ -241,11 +240,11 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 	}
 
 
-	for (auto i = 1; i <= n; i++) {   
-		if (visited[i] > 0) {
-			add_triplet(label, i, u, visited[i], update);
-		}
-	}
+	// for (auto i = 1; i <= n; i++) {   
+	// 	if (visited[i] > 0) {
+	// 		add_triplet(label, i, u, visited[i], update);
+	// 	}
+	// }
 	myfile.close();
 }
 
@@ -290,7 +289,9 @@ void SL::construct() {
 
 
 
+	// while (true) {
 
+	// }
 	
 	cout << "total n = " << n << ", single node = " << singleNode << "\n";
 
@@ -300,17 +301,18 @@ void SL::construct() {
 	cout << "start construction\n";
 	// int c;
 	// cin >> c;
+
+
+	
+	auto start_time = std::chrono::high_resolution_clock::now();
 	for (auto i = 1; i <= m; i++) {
 		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
 		Q.push(Pair_in_queue(i, graph_edge[idx[i]].length));
 		// cout << "construct for hID = " << i << " is finished\n";
 		
-		auto start_time = std::chrono::high_resolution_clock::now();
 		fill(visited, visited + n + 1, 0);
 		
 		construct_for_a_vertex(graph_edge, i, false);
-		auto end_time = std::chrono::high_resolution_clock::now();
-		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 		if (i % 1000 == 1) {
 		cout << "Edge  " << i << " has ben constructed " << "\n";
 		}
@@ -318,24 +320,12 @@ void SL::construct() {
 		
 	}
 	
-	
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 	myConstructionfile.close();
+	cout << "construct time is " << elapsed_time.count() << "\n";
 	
 
-
-
-	// cout << "order is :\n";
-	// for (auto i = 1; i <= 5; i++) {
-	// 	cout << i << ": " << order[i] << "\n";
-	// }
-
-	// cout << "label is :\n";
-	// for (auto i = 1; i <= 8; i++) {
-	// 	cout << "Label[" << i << "] :\n";
-	// 	for (auto pair : label[i]) {
-	// 		cout << "(" << pair.hID << ", " << pair.overlap << ")\n";
-	// 	}
-	// }
 
 	delete[] tmpLabel;
 	for (auto i = 1; i<=m; i++) {
@@ -343,31 +333,7 @@ void SL::construct() {
 		graph_edge[i].node.shrink_to_fit();
 	}
 	cout << "construction finished\n";
-	// int c;
-	// cin >> c;
-	// while (true) {
 
-	// }
-
-	// cout << "n = " << n << "\n";
-	// for (auto i = 1; i <= n; i++) {
-	// 	cout << i << "->" << (*vertex_map)[i] << "\n"; 
-	// }
-
-	// cout << "order:\n";
-	// for (auto i = 1; i <= m; i++) {
-	// 	cout << idx[i] << " ";
-	// }
-	// cout << "\n";
-
-
-	// cout << "current Index is :\n";
-	// for (auto i = 1; i <= n; i++) {
-	// 	cout << "for L(" << i << "):\n";
-	// 	for (auto pair : label[i]) {
-	// 		cout << "(" << idx[pair.hID] << ", " << pair.overlap << ")\n";
-	// 	}
-	// }
 
 
 
@@ -400,7 +366,7 @@ void SL::construct() {
 	// 	}
 	// }
 	
-	delete[] label;
+	// delete[] label;
 	// delete[] tmpE;
 	// tmpE = nullptr;
 	cout << "construction finished\n";
@@ -410,22 +376,12 @@ void SL::construct() {
 	
 
 
-
-	// cout << "after construction:\n";
-	// cout << "Index is Label :\n";
-	// for (auto i = 1; i <= n; i++) {
-	// 	cout << "Vertex ID = " << i << ":\n";
-	// 	for (auto pair : label[i]) {
-	// 		cout << "hID = " << idx[pair.hID] << ", " << " with overlap = " << pair.overlap << "\n";  
-	// 	}
-	// }
-
 }
 
 
 
 
-int SL::span_reach(int u, int v, bool original_id) {
+int SL::span_reach(int u, int v, int k, bool original_id) {
 	// cout << "span reach checking " << u << " and " << v << " with o = " << overlap << "\n";
 	int init_u = u;
 	int init_v = v;
@@ -455,7 +411,7 @@ int SL::span_reach(int u, int v, bool original_id) {
 	}
 	
 	
-	int overlap = 0;
+	int overlap = k;
 
 
 	auto srcIt = label_u[tmp_u].begin();
@@ -475,32 +431,6 @@ int SL::span_reach(int u, int v, bool original_id) {
 
 	}
 	
-	// srcIt = label_u[u].begin();
-	// dstIt = label_v[v].begin();
-	
-	// ofstream myfile;
-  	// myfile.open ("log.txt");
-
-	// myfile << "for Label[u]:\n";
-	// if (init_u == 64450 && init_v == 99974 && overlap == 4) {
-	
-	// 	while (srcIt != label_u[u].end()) {
-	// 		myfile << srcIt->hID << ", " << srcIt->overlap << "\n";
-	// 		srcIt++;
-	// 	}
-	// }
-
-	// myfile << "for Label[v]:\n";
-
-	// if (init_u == 64450 && init_v == 99974 && overlap == 4) {
-	
-	// 	while (dstIt != label_v[v].end()) {
-	// 		myfile << dstIt->hID << ", " << dstIt->overlap << "\n";
-	// 		dstIt++;
-	// 	}
-	// 	myfile << "v is " << v << ", tmp_v is " << tmp_v << "\n";
-	// 	return true;
-	// }
 	return overlap;
 }
 
@@ -540,6 +470,33 @@ int SL::ete_reach(int src, int dst, bool original_id) {
 	}
 	return overlap;
 }
+
+
+
+int SL::ete_edge_reach(int src, int dst) {
+	int overlap = 0;
+
+
+	auto srcIt = ete_label[src].begin();
+	auto dstIt = ete_label[dst].begin();
+	while (srcIt != ete_label[src].end() && dstIt != ete_label[dst].end()) {
+		if (srcIt->hID > dstIt->hID ) {
+			dstIt++;
+		} else if (srcIt->hID < dstIt->hID) {
+			srcIt++;
+		} else {
+			if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+				overlap = min(srcIt->overlap, dstIt->overlap);
+			}
+			srcIt++;
+			dstIt++;
+		}
+
+
+	}
+	return overlap;
+}
+
 
 
 int SL::reach(int src, int dst, bool original_id) {
@@ -584,13 +541,6 @@ int SL::baseLine(int src, int dst, bool original_id) {
 		dst = (*vertex_map)[dst];
 	}
 
-	// for (int i = 1; i <= m; i++) {
-    //     cout << "edge " << i << " is overlaped with :\n";
-    //     for (auto e : neighbour[i]) {
-    //         cout << e.first << ", " << e.second << "\n";
-    //     } 
-    // }
-
 
 	vector<int> in_visit, out_visit;
 	for (auto i = 0; i <= m; i++) {
@@ -598,8 +548,7 @@ int SL::baseLine(int src, int dst, bool original_id) {
 		out_visit.push_back(0);
 	}
 	priority_queue<Pair_in_queue> Q_in, Q_out;
-	// cout << "try to query for " << src << " and " << dst << " with t = " << overlap << "\n";
-	// cout << "for dst:\n";
+
 	for (auto h : E[dst]) {
 		// cout << "insert " << h << " with o = " << graph_edge[h].length << "\n";
 		Q_in.push(Pair_in_queue(h, graph_edge[h].length));
@@ -633,13 +582,6 @@ int SL::baseLine(int src, int dst, bool original_id) {
 				if (in_visit[h] >= o) continue;
 				in_visit[h] = o;
 				
-				// for (auto nextPair : neighbour[h]) {
-				// 	if (nextPair.second < overlap) continue;
-				// 	// cout << "push " << nextPair.first << " " << nextPair.second << "\n";
-				// 	if (in_visit[nextPair.first]) continue;
-				// 	Q_in.push(nextPair);
-				// }
-
 				map<int, int> m;
 	
 				for (auto v : graph_edge[h].node) {

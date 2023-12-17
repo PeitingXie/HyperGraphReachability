@@ -231,9 +231,9 @@ int main(int argc, char *argv[])
         }
     }
 
-	string baseOutput = "ete_test_result/" + folderName + "/basetime";
-	string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
-	string eteOutput = "ete_test_result/" + folderName + "/eteTime";
+	string baseOutput = "test_result/" + folderName + "/basetime";
+	string twoHopOutput = "test_result/" + folderName + "/spanReachTime";
+	string eteOutput = "test_result/" + folderName + "/eteTime";
 
 	cout << "max size is " << graph->max_size << "\n";
 
@@ -336,25 +336,25 @@ int main(int argc, char *argv[])
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
 			
-			// auto res1 = alg->baseLine(i,j, 1);
-			auto res1 = 0;
+			auto res1 = alg->baseLine(i,j, 1);
+			// auto res1 = 0;
 			cout << "baseline finished\n";
 			auto end_time = std::chrono::high_resolution_clock::now();
 			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 
 
-			// std::ofstream myfile(currBaseOutFile, std::ios::app);
+			std::ofstream myfile(currBaseOutFile, std::ios::app);
 			
-			// myfile << elapsed_time_base.count() << "\n";
-			// myfile.close();
+			myfile << elapsed_time_base.count() << "\n";
+			myfile.close();
 			
 			
 			start_time = std::chrono::high_resolution_clock::now();
 			auto res2 = alg->reach(i,j,1);
 			end_time = std::chrono::high_resolution_clock::now();
-			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 
 			std::ofstream myfile2(currTwoHopOutFile, std::ios::app);
 			
@@ -362,31 +362,31 @@ int main(int argc, char *argv[])
 			myfile2.close();
 
 
-			// if (res1 != res2) {
-			// 	cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-			// 	return 0;
-			// }
-			
-			
-			start_time = std::chrono::high_resolution_clock::now();
-			auto res3 = alg->ete_reach(i, j, 1);
-			end_time = std::chrono::high_resolution_clock::now();
-			elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-			
-			std::ofstream myfile3(currEteOutFile, std::ios::app);
-			myfile3 << elapsed_time_span.count() << "\n";
-			myfile3.close();
-
-
-
-			if (res2 != res3) {
-				cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
+			if (res1 != res2) {
+				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
 				return 0;
 			}
+			
+			
+			// start_time = std::chrono::high_resolution_clock::now();
+			// auto res3 = alg->ete_reach(i, j, 1);
+			// end_time = std::chrono::high_resolution_clock::now();
+			// elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			
+			// std::ofstream myfile3(currEteOutFile, std::ios::app);
+			// myfile3 << elapsed_time_span.count() << "\n";
+			// myfile3.close();
+
+
+
+			// if (res2 != res3) {
+			// 	cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
+			// 	return 0;
+			// }
 			cout << "result is " << res2 << "\n";
 
 
-			string rate = "ete_test_result/" + folderName + "/rate.txt";
+			string rate = "test_result/" + folderName + "/rate.txt";
 			std::ofstream file4(rate, std::ios::app);
 			file4 << res2 << "\n";
 			file4.close();

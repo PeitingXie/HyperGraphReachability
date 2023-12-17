@@ -52,7 +52,7 @@ private:
 	long long neighbour[10000000];
 	int *visited;
 	int *visited_h;
-
+	int *cover_h;
 	int *temp, *rank, *idx2;
 
 	vector<int> *tmpE;
