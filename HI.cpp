@@ -201,13 +201,15 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		// if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
 		// 	continue;
 		// }
-		// if (visited_h[h] == u) continue;
+		if (visited_h[h] == u) continue;
 		visited_h[h] = u;
-		// int max_cover = span_reach(h + n, u + n, 0);
 		if (u != h) {
 			global_visited_h[h] = max(global_visited_h[h], overlap);
+		} else {
+			if (overlap <= global_visited_h[u]) continue;
 		}
 		// int max_cover = ete_edge_reach(h, u);
+		// int max_cover = span_reach(h + n, u + n, 0);
 		// if (max_cover >= overlap) {
 		// 	// for (auto v : graph_edge[idx[h]].node) {
 		// 	// 	if (v > n) continue;
@@ -221,7 +223,7 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		// 	continue;
 		// }
 
-		add_triplet(ete_label, h, u, overlap, true);
+		// add_triplet(ete_label, h, u, overlap, true);
 		// max_h = max(max_h, overlap);
 		
 		for (auto v : graph_edge[idx[h]].node) {
@@ -267,12 +269,10 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 				// total_memory++;
 				continue;
 			} 
-			// if (it->first == 219) {
-			// 	if (visited_h[it->first] == u) {
-			// 		cout << "error\n";
-			// 	}
-			// }
-			visited_h[it->first] = u;
+	
+
+			//TODO modify here
+			// visited_h[it->first] = u;
 			Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 		}
 		// cout << "next BFS to :\n";
@@ -362,9 +362,9 @@ void SL::construct() {
 
 
 
-		// if (i % 1000 == 1) {
+		if (i % 1000 == 1) {
 		cout << "Edge  " << i << " has ben constructed " << "\n";
-		// }
+		}
 		std::priority_queue<Pair_in_queue>().swap(Q);
 		
 	}
@@ -428,9 +428,9 @@ void SL::construct() {
 	// delete[] tmpE;
 	// tmpE = nullptr;
 	cout << "construction finished\n";
-	// while (true) {
+	while (true) {
 
-	// }
+	}
 	
 	int e;
 	cin >> e;
