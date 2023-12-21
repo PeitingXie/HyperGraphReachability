@@ -19,6 +19,49 @@ int main(int argc, char *argv[])
 	
 	cout << "graph init complete\n";
 
+	vector<vector<int>> hot;
+	vector<int> centrality;
+	for (auto i = 1; i <= graph->n; i++) {
+		centrality.push_back(graph->E[i].size());
+	}
+	sort(centrality.begin(), centrality.end());
+	// int pivot = graph->n * 0.8;
+	vector<int> threshold;
+	double level = 0.85;
+	int count = 0;
+	double val = level + count * 0.03;
+	while (val < 1) {
+		threshold.push_back(centrality[graph->n * val]);
+		count += 1;
+		val = level + count * 0.03;
+		hot.push_back(vector<int>());
+		// cout << "val is " << val << "\n";
+	}
+	// cout << "here\n";
+	// int threshold1 = centrality[pivot];
+	// int threshold2 = centrality[graph->n * 0.83];
+	// int threshold2 = centrality[graph->n * 0.86];
+	// int threshold2 = centrality[graph->n * 0.89];
+	// int threshold2 = centrality[graph->n * 0.92];
+	// int threshold2 = centrality[graph->n * 0.95];
+	// int threshold2 = centrality[graph->n * 0.98];
+	// cout << "pivot is " << threshold << "\n";
+	// while (true) {
+
+	// }
+
+	for (auto i = 1; i <= graph->n; i++) {
+		for (auto j = 0; j < threshold.size(); j++) {
+			if (graph->E[i].size() > threshold[j] ) {
+				hot[j].push_back(i);
+			}
+		}
+	}
+	cout << "size = " << count << "\n";
+	// while (true) {
+		
+	// }
+
 
 
 	alg -> construct();
@@ -231,32 +274,26 @@ int main(int argc, char *argv[])
         }
     }
 
-	string baseOutput = "test_result/" + folderName + "/basetime";
-	string twoHopOutput = "test_result/" + folderName + "/spanReachTime";
-	string eteOutput = "test_result/" + folderName + "/eteTime";
+	
 
 	cout << "max size is " << graph->max_size << "\n";
 
-	
-	for (auto overlap = 0; overlap < 1; overlap++) {
+	string baseOutput = "ete_test_result/" + folderName + "/basetime";
+	string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
+	string eteOutput = "ete_test_result/" + folderName + "/eteTime";
+	for (auto overlap = 0; overlap < threshold.size(); overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
 		string currBaseOutFile;
 		string currTwoHopOutFile; 
 		string currEteOutFile; 
-		if (overlap == 0) {
-			k = rand() % 5 + 1;
-			currBaseOutFile = baseOutput + "Rand.txt";
-			currTwoHopOutFile = twoHopOutput + "Rand.txt";
-			currEteOutFile = eteOutput + "Rand.txt";
-		} else {
-			k = overlap;
-			currBaseOutFile = baseOutput + to_string(k) + ".txt";
-			currTwoHopOutFile = twoHopOutput + to_string(k) + ".txt";
-			currEteOutFile = eteOutput + to_string(k) + ".txt";
-		}
 
+		
+		
+		currBaseOutFile = baseOutput + to_string(overlap) + ".txt";
+		currTwoHopOutFile = twoHopOutput + to_string(overlap) + ".txt";
+		currEteOutFile = eteOutput + to_string(overlap) + ".txt";
 		std::ofstream outputFile(currBaseOutFile, std::ios::trunc);
 		outputFile.close();
 
@@ -313,18 +350,17 @@ int main(int argc, char *argv[])
 		// 	}
 		// }
 
-		string currk;
-		if (overlap != 0) {
-			currk = to_string(k);
-		} else {
-			currk = "random";
-		}
-
-		while (count < 200000) {
+	
+		
+		while (count < 10000) {
 			total++;
-			int i = rand() % graph->n + 1;
-			int j = rand() % graph->n + 1;
 			
+			// int i = rand() % graph->n + 1;
+			// int j = rand() % graph->n + 1;
+			int srcID = rand() % hot.size();
+			int dstID = rand() % hot.size();
+			int i = hot[overlap][srcID];
+			int j = hot[overlap][dstID];
 			// i = 857;
 			// j = 2636;
 			// k = 4; 
@@ -332,16 +368,16 @@ int main(int argc, char *argv[])
 			// j = 7;
 
 
-			cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
+			cout << "test " << count << " with " << i << ", " << j << " with threshold = " << centrality[graph->n * (level + overlap * 0.03)] <<"\n";
 			
 			auto start_time = std::chrono::high_resolution_clock::now();
-			
+
 			auto res1 = alg->baseLine(i,j, 1);
 			// auto res1 = 0;
-			cout << "baseline finished\n";
 			auto end_time = std::chrono::high_resolution_clock::now();
 			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			cout << "result is " << res1 << "\n";
 
 
 			std::ofstream myfile(currBaseOutFile, std::ios::app);
@@ -368,25 +404,26 @@ int main(int argc, char *argv[])
 			}
 			
 			
-			// start_time = std::chrono::high_resolution_clock::now();
-			// auto res3 = alg->ete_reach(i, j, 1);
-			// end_time = std::chrono::high_resolution_clock::now();
-			// elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			cout << "baseline finished\n";
+			start_time = std::chrono::high_resolution_clock::now();
+			auto res3 = alg->ete_reach(i, j, 1);
+			end_time = std::chrono::high_resolution_clock::now();
+			elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 			
-			// std::ofstream myfile3(currEteOutFile, std::ios::app);
-			// myfile3 << elapsed_time_span.count() << "\n";
-			// myfile3.close();
+			std::ofstream myfile3(currEteOutFile, std::ios::app);
+			myfile3 << elapsed_time_span.count() << "\n";
+			myfile3.close();
 
 
 
-			// if (res2 != res3) {
-			// 	cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
-			// 	return 0;
-			// }
-			cout << "result is " << res2 << "\n";
+			if (res2 != res3) {
+				cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
+				return 0;
+			}
+			
 
 
-			string rate = "test_result/" + folderName + "/rate.txt";
+			string rate = "ete_test_result/" + folderName + "/rate.txt";
 			std::ofstream file4(rate, std::ios::app);
 			file4 << res2 << "\n";
 			file4.close();
@@ -400,7 +437,7 @@ int main(int argc, char *argv[])
 		// file3 << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
 		// file3 << "total test case = " << total << ", true case = " << reach << "\n"; 
 
-		cout << "test for " << argv[1] << ", k = " << currk <<" is finished\n";	
+		cout << "test for " << argv[1] << " is finished\n";	
 		cout << "total test case = " << total << ", true case = " << reach << "\n"; 
 	}
 	

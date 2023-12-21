@@ -17,6 +17,9 @@ SL::SL(Graph *graph)
 
 	//theta = 2000000000;
 
+	total_memory = 0;
+
+
 	label = new vector<Pair> [n + 1];
 	ete_label = new vector<Pair> [m + 1];
 	tmpLabel = new vector<Pair> [m + 1];
@@ -24,11 +27,13 @@ SL::SL(Graph *graph)
 	visited_h = new int [m + 1];
 	fill(visited_h, visited_h + m + 1, 0);
 	
-	
-	
+	global_visited_h = new int [m+1];
+	fill(global_visited_h, global_visited_h + m + 1, 0);
+
 	for (auto i = 1; i <= m; i++) {
 		for (auto v: graph_edge[i].node) {
 			neighbour[i] += pow(E[v].size(), 2);
+			// neighbour[i] += E[v].size();
 		}
 	}
 
@@ -167,9 +172,21 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 	int num = 0;
 	ofstream myfile;
   	myfile.open ("out.txt");
+	int max_h = 0;
+	long long total = 0;
+	long memoryBefore = getMemoryUsage();
+	// if (u != 1) {
+	// 	cout << "init memory = " << memoryBefore << "\n";
+	// 	// while (true) {
+
+	// 	// }
+	// }
 	
 	while (!Q.empty()) {
 		count++;
+		if (count % 10 == 0) {
+			total += getMemoryUsage() - memoryBefore;
+		}
 		// if (count > 10) break;
 		Pair_in_queue pair = Q.top();
 		Q.pop();
@@ -177,37 +194,48 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 		int overlap = pair.overlap;
 
 		// myfile << "current hID is " << h << ", with o = " << overlap << "\n";
+		// if (u >= 13) {
+		// 	cout << count <<"\n";
+		// }
 		// myfile << "span_reach check for hyperedge " << u << " and " <<  h  << "\n";
 		// if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
 		// 	continue;
 		// }
-
+		// if (visited_h[h] == u) continue;
 		visited_h[h] = u;
-		int max_cover = span_reach(h + n, u + n, 0);
-		// int max_cover = ete_edge_reach(h, u);
-		if (max_cover >= overlap) {
-			// for (auto v : graph_edge[idx[h]].node) {
-			// 	if (v > n) continue;
-			// 	if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
-			// 		visited[v] = -max_cover;
-			// 	}	
-			// }
-			continue;
+		// int max_cover = span_reach(h + n, u + n, 0);
+		if (u != h) {
+			global_visited_h[h] = max(global_visited_h[h], overlap);
 		}
+		// int max_cover = ete_edge_reach(h, u);
+		// if (max_cover >= overlap) {
+		// 	// for (auto v : graph_edge[idx[h]].node) {
+		// 	// 	if (v > n) continue;
+		// 	// 	if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
+		// 	// 		visited[v] = -max_cover;
+		// 	// 	}	
+		// 	// }
+		// 	if (u != h) {
+		// 		total_memory++;
+		// 	}
+		// 	continue;
+		// }
 
 		add_triplet(ete_label, h, u, overlap, true);
-
+		// max_h = max(max_h, overlap);
+		
 		for (auto v : graph_edge[idx[h]].node) {
 			if (v > n) {
-				add_triplet(tmpLabel, order[v - n], u, overlap, update);
+				continue;
+				// add_triplet(tmpLabel, order[v - n], u, overlap, update);
 
 			} else {
 				
 				if (visited[v] == 0) {
 					visited[v] = overlap;
-					if (span_reach(v, u + n, overlap - 1) >= overlap) {
-						continue;
-					}
+				// 	if (span_reach(v, u + n, overlap - 1) >= overlap) {
+				// 		continue;
+				// 	}
 					add_triplet(label, v, u, overlap, update);
 					
 				}
@@ -221,7 +249,9 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			if (v > n) continue;
 			for (auto nextH : E[v]) {
 				if (order[nextH] <= u || order[nextH] == h) continue;
-				if (visited_h[order[nextH]] == u) continue;
+				if (visited_h[order[nextH]] == u) {
+					continue;
+				}
 				if (m.find(order[nextH]) != m.end()) {
 					m[order[nextH]]++;
 				} else {
@@ -232,19 +262,33 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 
 		for (auto it = m.begin(); it != m.end(); it++) {
 			
-			// visited_h[it->first] = u;
+			
+			if (min(overlap, it->second) <= global_visited_h[u]) {
+				// total_memory++;
+				continue;
+			} 
+			// if (it->first == 219) {
+			// 	if (visited_h[it->first] == u) {
+			// 		cout << "error\n";
+			// 	}
+			// }
+			visited_h[it->first] = u;
 			Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 		}
 		// cout << "next BFS to :\n";
 		m.clear();
 	}
-
+	// global_visited_h[u] = max_h;
 
 	// for (auto i = 1; i <= n; i++) {   
 	// 	if (visited[i] > 0) {
 	// 		add_triplet(label, i, u, visited[i], update);
 	// 	}
 	// }
+	// if (u != 1) {
+	// 	total_memory += total;
+	// }
+
 	myfile.close();
 }
 
@@ -307,15 +351,20 @@ void SL::construct() {
 	auto start_time = std::chrono::high_resolution_clock::now();
 	for (auto i = 1; i <= m; i++) {
 		// cout << "\n------------------------------construct for hID = " << i << " with overlap = " << graph_edge[idx[i]].node.size() - 1 << "-----------------------------\n";
+		
+	
 		Q.push(Pair_in_queue(i, graph_edge[idx[i]].length));
 		// cout << "construct for hID = " << i << " is finished\n";
 		
 		fill(visited, visited + n + 1, 0);
 		
 		construct_for_a_vertex(graph_edge, i, false);
-		if (i % 1000 == 1) {
+
+
+
+		// if (i % 1000 == 1) {
 		cout << "Edge  " << i << " has ben constructed " << "\n";
-		}
+		// }
 		std::priority_queue<Pair_in_queue>().swap(Q);
 		
 	}
@@ -325,6 +374,15 @@ void SL::construct() {
 	myConstructionfile.close();
 	cout << "construct time is " << elapsed_time.count() << "\n";
 	
+	std::cout << "Total memory usage increase: " << total_memory << " kB" << std::endl;
+		//  while (true) {
+
+		//  }
+	
+
+	
+
+
 
 
 	delete[] tmpLabel;
@@ -370,11 +428,12 @@ void SL::construct() {
 	// delete[] tmpE;
 	// tmpE = nullptr;
 	cout << "construction finished\n";
-	while (true) {
+	// while (true) {
 
-	}
+	// }
 	
-
+	int e;
+	cin >> e;
 
 }
 
@@ -446,28 +505,140 @@ int SL::ete_reach(int src, int dst, bool original_id) {
 	if (src == dst) {
 		overlap = 1;
 	}
-	for (auto h_u : E[src]) {
-		h_u = order[h_u];
-		for (auto h_v : E[dst]) {
-			h_v = order[h_v];
-			auto srcIt = ete_label[h_u].begin();
-			auto dstIt = ete_label[h_v].begin();
-			while (srcIt != ete_label[h_u].end() && dstIt != ete_label[h_v].end()) {
-				if (srcIt->hID > dstIt->hID ) {
-					dstIt++;
-				} else if (srcIt->hID < dstIt->hID) {
-					srcIt++;
-				} else {
-					if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
-						overlap = min(srcIt->overlap, dstIt->overlap);
-					}
-					srcIt++;
-					dstIt++;
-				}
 
+	vector<Pair> srcSet;
+	vector<Pair> dstSet;
+
+
+	for (auto h_u : E[src]) {
+		auto srcIt1 = srcSet.begin();
+		h_u = order[h_u];
+		auto srcIt2 = ete_label[h_u].begin();
+		// cout << "1\n";
+		while (srcIt1 != srcSet.end() && srcIt2 != ete_label[h_u].end()) {
+			// cout << "2\n";
+			if (srcIt1->hID < srcIt2->hID) {
+				srcIt1++;
+			} else {
+				// cout << "?\n";
+				auto dist = std::distance(srcSet.begin(), srcIt1);
+				if (srcIt1->hID == srcIt2->hID) {
+					srcIt1->overlap = max(srcIt1->overlap, srcIt2->overlap);
+				} else {
+					srcSet.insert(srcIt1, Pair(srcIt2->hID, srcIt2->overlap));
+					srcIt1 = srcSet.begin() + dist + 1;
+				}
+				srcIt2++;
+			}
+		}	
+		
+
+		if (srcIt2 != ete_label[h_u].end()) {
+			while (srcIt2 != ete_label[h_u].end()) {
+				auto dist = std::distance(srcSet.begin(), srcIt1);
+				if (srcIt1 == srcSet.end()) {
+					srcSet.insert(srcIt1, Pair(srcIt2->hID, srcIt2->overlap));
+					srcIt1 = srcSet.begin() + dist + 1;
+				} else {
+					if (srcIt1->hID == srcIt2->hID) {
+						srcIt1->overlap = max(srcIt1->overlap, srcIt2->overlap);
+					} else {
+						srcSet.insert(srcIt1 + 1, Pair(srcIt2->hID, srcIt2->overlap));
+						srcIt1 = srcSet.begin() + dist + 1;
+					}
+				}
+				srcIt2++;
+				// cout << "4\n";
 			}
 		}
+		// cout << "123\n";
+
+		
 	}
+	// cout << "11111\n";
+
+	for (auto h_v : E[dst]) {
+		auto dstIt1 = dstSet.begin();
+		h_v = order[h_v];
+		auto dstIt2 = ete_label[h_v].begin();
+		
+		while (dstIt1 != dstSet.end() && dstIt2 != ete_label[h_v].end()) {
+			
+			if (dstIt1->hID <= dstIt2->hID) {
+				dstIt1++;
+			} else {
+				auto dist = std::distance(dstSet.begin(), dstIt1);
+				dstSet.insert(dstIt1, Pair(dstIt2->hID, dstIt2->overlap));
+				dstIt1 = dstSet.begin() + dist + 1;
+				dstIt2++;
+			}
+				
+		}
+		if (dstIt2 != ete_label[h_v].end()) {
+			while (dstIt2 != ete_label[h_v].end()) {
+				auto dist = std::distance(dstSet.begin(), dstIt1);
+				if (dstIt1 == dstSet.end()) {
+					dstSet.insert(dstIt1, Pair(dstIt2->hID, dstIt2->overlap));
+				} else {
+					dstSet.insert(dstIt1 + 1, Pair(dstIt2->hID, dstIt2->overlap));
+				}
+				dstIt1 = dstSet.begin() + dist + 1;
+				dstIt2++;
+			}
+		}
+
+	}
+	// cout << "22222\n";
+
+	// cout << "for in set\n";
+	// for (auto p : srcSet) {
+	// 	cout << "hID = " << p.hID << ", overlap = " << p.overlap << "\n";
+	// }
+	// cout << "------------------------------------------for out set\n";
+	// for (auto p : dstSet) {
+	// 	cout << "hID = " << p.hID << ", overlap = " << p.overlap << "\n";
+	// }
+	auto srcIt = srcSet.begin();
+	auto dstIt = dstSet.begin();
+	while (srcIt != srcSet.end() && dstIt != dstSet.end()) {
+		if (srcIt->hID > dstIt->hID ) {
+			dstIt++;
+		} else if (srcIt->hID < dstIt->hID) {
+			srcIt++;
+		} else {
+			if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+				overlap = min(srcIt->overlap, dstIt->overlap);
+			}
+			if ((srcIt + 1) != srcSet.end() && srcIt->hID == (srcIt + 1)->hID) {
+				srcIt++;
+			} else {
+				dstIt++;
+			}
+		}
+
+	}
+	// for (auto h_u : E[src]) {
+	// 	h_u = order[h_u];
+	// 	for (auto h_v : E[dst]) {
+	// 		h_v = order[h_v];
+	// 		auto srcIt = ete_label[h_u].begin();
+	// 		auto dstIt = ete_label[h_v].begin();
+	// 		while (srcIt != ete_label[h_u].end() && dstIt != ete_label[h_v].end()) {
+	// 			if (srcIt->hID > dstIt->hID ) {
+	// 				dstIt++;
+	// 			} else if (srcIt->hID < dstIt->hID) {
+	// 				srcIt++;
+	// 			} else {
+	// 				if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+	// 					overlap = min(srcIt->overlap, dstIt->overlap);
+	// 				}
+	// 				srcIt++;
+	// 				dstIt++;
+	// 			}
+
+	// 		}
+	// 	}
+	// }
 	return overlap;
 }
 
@@ -665,3 +836,21 @@ int SL::baseLine(int src, int dst, bool original_id) {
 	}
 	return result;
 }	
+
+
+
+
+
+long SL::getMemoryUsage() {
+    std::string line;
+    std::ifstream stat_stream("/proc/self/status", std::ios_base::in);
+
+    while (std::getline(stat_stream, line)) {
+        if (line.substr(0, 6) == "VmRSS:") {
+            std::string rss = line.substr(7);
+            rss = rss.substr(0, rss.find(" kB"));
+            return std::stol(rss);
+        }
+    }
+    return -1; // 如果没有找到相关信息
+}

@@ -53,9 +53,15 @@ private:
 	int *visited;
 	int *visited_h;
 
+	int *global_visited_h;
+
+
 	int *temp, *rank, *idx2;
 
 	vector<int> *tmpE;
+
+	long long total_memory;
+
 	// TILL-Index
 	
 
@@ -108,4 +114,8 @@ public:
 	void estimate();
 	//bool compareByFirstElement(const Pair_advanced& lhs, const Pair_advanced& rhs);
 	//void SL::updateMustVisit(vector<mustVisit> *label_advanced_construct, int u, int v, int sign, vector<int> path, map<pair<int, int>, vector<int>> *visitedNode, vector<pair<int, set<levelRecord>>> *levelRecord);
+
+
+	long getMemoryUsage();
+
 };
