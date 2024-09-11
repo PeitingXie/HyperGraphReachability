@@ -11,8 +11,55 @@ int main(int argc, char *argv[])
 		cout << "Parameter Error" << endl;
 		return 0;
 	}
+	double scale = stod(argv[5]);
 
-	Graph * graph = new Graph(argv[1], directed);
+
+	string folder = "scale";
+	string disFolder = "dis";
+	string dictName = argv[1];
+	dictName.erase(dictName.size() - 4);
+	dictName.erase(0, 5);
+	cout << "dict path is " << dictName << "\n";
+
+	string dictPath = folder + "/" + dictName;
+	string disPath = disFolder + "/" + dictName;
+	
+	string filePath = dictPath + "/" + "memory.txt";
+
+	string disFilePath = disPath + "/" + "dis.txt";
+
+	if (!std::filesystem::exists(dictPath)) {
+        try {
+            std::filesystem::create_directory(dictPath);
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "创建文件夹时出现错误1: " << e.what() << std::endl;
+        }
+    }
+
+	if (!std::filesystem::exists(disPath)) {
+        try {
+            std::filesystem::create_directory(disPath);
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "创建文件夹时出现错误1: " << e.what() << std::endl;
+        }
+    }
+
+	if (scale == 0.2) {
+		std::ofstream file(filePath, std::ofstream::trunc);
+	}
+	
+	std::ofstream file(filePath, std::ofstream::app);
+
+	if (!file.is_open()) {
+		std::cerr << "无法打开文件: " << filePath << std::endl;
+		return -1;
+	}
+
+	file << "current scale = " << argv[5] << "\n";
+	file.close();
+
+
+	Graph * graph = new Graph(argv[1], directed, scale);
 	
 	SL * alg = new SL(graph);
 
@@ -27,13 +74,13 @@ int main(int argc, char *argv[])
 	sort(centrality.begin(), centrality.end());
 	// int pivot = graph->n * 0.8;
 	vector<int> threshold;
-	double level = 0.85;
+	double level = 0.2;
 	int count = 0;
-	double val = level + count * 0.03;
+	double val = 0;
 	while (val < 1) {
 		threshold.push_back(centrality[graph->n * val]);
 		count += 1;
-		val = level + count * 0.03;
+		val = count * 0.2;
 		hot.push_back(vector<int>());
 		// cout << "val is " << val << "\n";
 	}
@@ -51,12 +98,14 @@ int main(int argc, char *argv[])
 	// }
 
 	for (auto i = 1; i <= graph->n; i++) {
-		for (auto j = 0; j < threshold.size(); j++) {
-			if (graph->E[i].size() > threshold[j] ) {
+		for (auto j = threshold.size() -1; j >= 0; j--) {
+			if (graph->E[i].size() >= threshold[j] ) {
 				hot[j].push_back(i);
+				break;
 			}
 		}
 	}
+	
 	cout << "size = " << count << "\n";
 	// while (true) {
 		
@@ -64,9 +113,10 @@ int main(int argc, char *argv[])
 
 
 
-	alg -> construct();
+	alg -> construct(filePath);
 	
 	cout << "construct complete\n";
+	// return 0;
 	char* query_file = argv[3];
 	char* output_file = argv[4];
 
@@ -264,11 +314,11 @@ int main(int argc, char *argv[])
 		}   
     }
 
-	
+	string degDist = "deg/";
 
-	if (!std::filesystem::exists("ete_test_result/" + folderName)) {
+	if (!std::filesystem::exists(degDist + folderName)) {
         try {
-            std::filesystem::create_directory("ete_test_result/" + folderName);
+            std::filesystem::create_directory(degDist + folderName);
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "创建文件夹时出现错误: " << e.what() << std::endl;
         }
@@ -278,10 +328,15 @@ int main(int argc, char *argv[])
 
 	cout << "max size is " << graph->max_size << "\n";
 
-	string baseOutput = "ete_test_result/" + folderName + "/basetime";
-	string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
-	string eteOutput = "ete_test_result/" + folderName + "/eteTime";
-	for (auto overlap = 0; overlap < threshold.size(); overlap++) {
+
+	
+	
+
+	string baseOutput = degDist + folderName + "/basetime";
+	string twoHopOutput = degDist + folderName + "/spanReachTime";
+	string eteOutput = degDist + folderName + "/eteTime";
+	
+	for (auto overlap = 0; overlap < hot.size(); overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
@@ -303,6 +358,9 @@ int main(int argc, char *argv[])
 		std::ofstream outputFile3(currEteOutFile, std::ios::trunc);
 		outputFile3.close();
 
+		std::ofstream outputFile4(disFilePath, std::ios::trunc);
+		outputFile4.close();
+		
 		int count = 0;
 
 
@@ -355,12 +413,19 @@ int main(int argc, char *argv[])
 		while (count < 10000) {
 			total++;
 			
-			// int i = rand() % graph->n + 1;
-			// int j = rand() % graph->n + 1;
-			int srcID = rand() % hot.size();
-			int dstID = rand() % hot.size();
-			int i = hot[overlap][srcID];
-			int j = hot[overlap][dstID];
+			int i = rand() % graph->n + 1;
+			int j = rand() % graph->n + 1;
+			// if (hot[overlap].size() == 0) {
+			// 	count++;
+			// 	continue;
+			// }
+			// int srcID = rand() % hot[overlap].size();
+			// int dstID = rand() % hot[overlap].size();
+			
+			// int i = hot[overlap][srcID];
+			// int j = hot[overlap][dstID];
+			// i = rand() % graph->n + 1;
+			// j = rand() % graph->n + 1;
 			// i = 857;
 			// j = 2636;
 			// k = 4; 
@@ -370,14 +435,15 @@ int main(int argc, char *argv[])
 
 			cout << "test " << count << " with " << i << ", " << j << " with threshold = " << centrality[graph->n * (level + overlap * 0.03)] <<"\n";
 			
+
 			auto start_time = std::chrono::high_resolution_clock::now();
+			
 
 			auto res1 = alg->baseLine(i,j, 1);
 			// auto res1 = 0;
 			auto end_time = std::chrono::high_resolution_clock::now();
 			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-			cout << "result is " << res1 << "\n";
 
 
 			std::ofstream myfile(currBaseOutFile, std::ios::app);
@@ -385,10 +451,11 @@ int main(int argc, char *argv[])
 			myfile << elapsed_time_base.count() << "\n";
 			myfile.close();
 			
-			
 			start_time = std::chrono::high_resolution_clock::now();
+			
 			auto res2 = alg->reach(i,j,1);
-			end_time = std::chrono::high_resolution_clock::now();
+			cout << "result is " << res2 << "\n";
+			 end_time = std::chrono::high_resolution_clock::now();
 			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 
@@ -397,11 +464,10 @@ int main(int argc, char *argv[])
 			myfile2 << elapsed_time_span.count() << "\n";
 			myfile2.close();
 
-
-			if (res1 != res2) {
-				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-				return 0;
-			}
+			std::ofstream file_dis(disFilePath, std::ios::app);
+			file_dis << res2 << " " << elapsed_time_span.count() << "\n";
+			file_dis.close();
+			//    
 			
 			
 			cout << "baseline finished\n";
@@ -416,14 +482,14 @@ int main(int argc, char *argv[])
 
 
 
-			if (res2 != res3) {
-				cout << "failed, baseline and span reach is " << res2 << ", ete_reach is " << res3 << "\n" ;
+			if (res1 != res2) {
+				cout << "failed, baseline is " << res1 << ", vte_reach is " << res2 << "\n" ;
 				return 0;
 			}
 			
+			
 
-
-			string rate = "ete_test_result/" + folderName + "/rate.txt";
+			string rate = degDist + folderName + "/rate.txt";
 			std::ofstream file4(rate, std::ios::app);
 			file4 << res2 << "\n";
 			file4.close();

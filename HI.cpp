@@ -32,15 +32,15 @@ SL::SL(Graph *graph)
 
 	for (auto i = 1; i <= m; i++) {
 		for (auto v: graph_edge[i].node) {
-			neighbour[i] += pow(E[v].size(), 2);
-			// neighbour[i] += E[v].size();
+			// neighbour[i] += pow(E[v].size(), 2);
+			neighbour[i] += E[v].size();
 		}
 	}
 
 
 	idx = new int [m + 1];
+	
 	iota(idx + 1, idx + m + 1, 1);
-
 	sort(idx + 1, idx + m + 1, [&](int i, int j){return (long long)(neighbour[i] + 1) > (long long)(neighbour[j] + 1);});
 
 	order = new int [m + 1];
@@ -48,69 +48,22 @@ SL::SL(Graph *graph)
 	for (int i = 1; i <= m; i++)
 		order[idx[i]] = i;
 
-	// temp = new int [n + 1];
-	// iota(temp + 1, temp + n + 1, 1);
-	// for (auto i = 1; i <= m; i++) {
-	// 	for (auto v : graph_edge[idx[i]].node) {
-	// 		temp[v] = m;
-	// 	}
-	// }
 
-	// rank = new int [m + 1];
-	// iota(rank + 1, rank + m + 1, 1);
-	// for (auto i = 1; i <= m; i++) {
-	// 	for (auto v : graph_edge[idx[i]].node) {
-	// 		rank[i] += (m - temp[v] + i);
-	// 	}
-	// 	rank[i] /= graph_edge[i].length;
-	// 	rank[i] *= neighbour[idx[i]];
-	// }
-
-	
-
-	// iota(idx + 1, idx + m + 1, 1);
-	// sort(idx + 1, idx + m + 1, [&](int i, int j){return (long long)(rank[i] + 1) > (long long)(rank[j] + 1);});
-
-	// iota(order + 1, order + m + 1, 1);
-	// for (int i = 1; i <= m; i++)
-	// 	order[idx[i]] = i;
-	
-	// delete[] temp;
-	// delete[] rank;
-
-
-
-	// for (int i = 1; i <= m; i++) {
-	// 	map<int, int> m;
-	// 	for (auto v : graph_edge[i].node) {
-	// 		for (auto h : E[v]) {
-	// 			if (h <= i) continue;
-	// 			if (m.find(h) != m.end()) {
-	// 				m[h]++;
-	// 			} else {
-	// 				m.insert(make_pair(h, 1));
-	// 			}
-	// 		}
-	// 	}
-
-	// 	for (auto pair : m) {
-	// 		neighbour[pair.first].push_back(make_pair(i, pair.second));
-	// 		neighbour[i].push_back(make_pair(pair.first, pair.second));
-	// 	}
-
-
-	// 	if (i % 100 == 0) {
-	// 		cout << "preComputing for hyperedge " << i << "is finished\n";
-	// 	}
-		
-	// }
-
-	// cout << "precompute finished\n";
-
+	nbr = new (std::nothrow) nbr_struct[m+1];
+	if (nbr == nullptr) {
+        std::cerr << "Memory allocation failed." << std::endl;
+        
+    }
+	for (int i = 0; i <= m; ++i) {
+        nbr[i].init = false;
+        nbr[i].max = 0;
+        nbr[i].left.clear();
+        nbr[i].right.clear();
+    }
 
 
 	for (auto i = 1; i <= m; i++) {
-		graph_edge[i].node.push_back(n + i);
+		graph_edge[i].node.emplace_back(n + i);
 	}
 
 	
@@ -124,6 +77,7 @@ SL::~SL()
 	
 	if (idx) delete[] idx;
 	if (order) delete[] order;
+	if (nbr) delete[] nbr;
 	// for baseline
 }
 
@@ -132,16 +86,8 @@ SL::~SL()
 void SL::add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update)
 {
 	
-	
-	// if (v == 64450 && u == order[178758] && overlap == 4) {
-	// 	cout << "overlap 4 construct success\n";
-	// 	while (true) {
-
-	// 	}
-	// }
-
 	if (!currLabel[u].size()) {
-		currLabel[u].push_back(Pair(h, overlap));
+		currLabel[u].emplace_back(Pair(h, overlap));
 	} else {
 		
 
@@ -174,109 +120,175 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
   	myfile.open ("out.txt");
 	int max_h = 0;
 	long long total = 0;
-	long memoryBefore = getMemoryUsage();
+	int execute = 0;
 	// if (u != 1) {
 	// 	cout << "init memory = " << memoryBefore << "\n";
 	// 	// while (true) {
 
 	// 	// }
 	// }
+
+
+	
+
 	
 	while (!Q.empty()) {
-		count++;
-		if (count % 10 == 0) {
-			total += getMemoryUsage() - memoryBefore;
-		}
+		// count++;
+		// if (count % 10 == 0) {
+		// 	total += getMemoryUsage() - memoryBefore;
+		// }
 		// if (count > 10) break;
 		Pair_in_queue pair = Q.top();
 		Q.pop();
 		int h = pair.hID;
 		int overlap = pair.overlap;
-
-		// myfile << "current hID is " << h << ", with o = " << overlap << "\n";
-		// if (u >= 13) {
-		// 	cout << count <<"\n";
-		// }
-		// myfile << "span_reach check for hyperedge " << u << " and " <<  h  << "\n";
-		// if (span_reach(idx[u] + n, idx[h] + n, overlap)) {
-		// 	continue;
-		// }
-		if (visited_h[h] == u) continue;
-		visited_h[h] = u;
-		if (u != h) {
-			global_visited_h[h] = max(global_visited_h[h], overlap);
-		} else {
-			if (overlap <= global_visited_h[u]) continue;
-		}
-		// int max_cover = ete_edge_reach(h, u);
-		// int max_cover = span_reach(h + n, u + n, 0);
-		// if (max_cover >= overlap) {
-		// 	// for (auto v : graph_edge[idx[h]].node) {
-		// 	// 	if (v > n) continue;
-		// 	// 	if ((visited[v] > 0 && max_cover > visited[v]) || visited[v] == 0) {
-		// 	// 		visited[v] = -max_cover;
-		// 	// 	}	
-		// 	// }
-		// 	if (u != h) {
-		// 		total_memory++;
-		// 	}
-		// 	continue;
+		execute ++;
+		// if (execute % 10 == 0) {
+			// cout << "execute " << execute << " edges\n";
 		// }
 
-		// add_triplet(ete_label, h, u, overlap, true);
-		// max_h = max(max_h, overlap);
-		
-		for (auto v : graph_edge[idx[h]].node) {
-			if (v > n) {
-				continue;
-				// add_triplet(tmpLabel, order[v - n], u, overlap, update);
 
-			} else {
-				
-				if (visited[v] == 0) {
-					visited[v] = overlap;
-				// 	if (span_reach(v, u + n, overlap - 1) >= overlap) {
-				// 		continue;
-				// 	}
-					add_triplet(label, v, u, overlap, update);
-					
-				}
-			}
+		if (overlap > nbr[h].max) {
+
+			add_triplet(ete_label, h, u, overlap, true);
+			// max_h = max(max_h, overlap);
 			
-		}
-
-		map<int, int> m;
-
-		for (auto v : graph_edge[idx[h]].node) {
-			if (v > n) continue;
-			for (auto nextH : E[v]) {
-				if (order[nextH] <= u || order[nextH] == h) continue;
-				if (visited_h[order[nextH]] == u) {
+			for (auto v : graph_edge[idx[h]].node) {
+				if (v > n) {
 					continue;
-				}
-				if (m.find(order[nextH]) != m.end()) {
-					m[order[nextH]]++;
+
 				} else {
-					m.insert(make_pair(order[nextH], 1));
+					
+					if (visited[v] == 0) {
+						visited[v] = overlap;
+						add_triplet(label, v, u, overlap, update);
+						
+					}
+				}
+				
+			}
+		} else {
+			continue;
+		}
+
+		// cout << "h = " << h << "\n";
+		// if (h == 0) cout << "got 0???\n";
+		if (!nbr[h].init) {
+			// cout << "h is " << h << "\n";
+			// cout << "2\n";
+			nbr[h].init = 1;
+			nbr[h].max = overlap;
+			map<int, int> m;
+			// cout << "a\n";
+			for (auto v : graph_edge[idx[h]].node) {
+				// cout << "c\n";
+				if (v > n) continue;
+				for (auto nextH : E[v]) {
+					if (order[nextH] <= u || order[nextH] == h) continue;
+					// if (visited_h[order[nextH]] >= overlap) {
+					// 	continue;
+					// }
+					if (m.find(order[nextH]) != m.end()) {
+						m[order[nextH]]++;
+					} else {
+						m.insert(make_pair(order[nextH], 1));
+					}
+				}
+				
+				// cout << "d\n";
+			}
+			// cout << "b\n";
+			for (auto it = m.begin(); it != m.end(); it++) {
+				if (nbr[it->first].max < min(overlap, it->second)) {
+				// 	visited_h[it->first] = it->second;
+					Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
+					// if (it->first == 0) {
+					// 	cout << "insert 0???\n";
+					// }
+				}
+				if (it->second > nbr[h].max && h > 1) {
+					if (it->first < h) {
+						nbr[h].left.emplace_back(make_pair(it->first, it->second));
+					} else {
+						nbr[h].right.emplace_back(make_pair(it->first, it->second));
+					}
 				}
 			}
+			m.clear();
+			// cout << "3\n";
+		} else if (overlap <= nbr[h].max) {
+			// cout << "4\n";
+		} else {
+			// cout << "5\n";
+			/*
+			auto it = nbr[h].left.lower_bound({0, overlap});
+			nbr[h].left.erase(nbr[h].left.begin(), it);
+			it = nbr[h].right.lower_bound({0, overlap});
+			nbr[h].right.erase(nbr[h].right.begin(), it);
+			*/
+			nbr[h].max = overlap;
+			if (u != h) {
+				for (auto it1 = nbr[h].left.begin(); it1 != nbr[h].left.end(); ) {
+					if (it1->first > u) {
+						Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
+						// if (it1->first == 0) {
+						// 	cout << "insert 0???\n";
+						// }
+					}
+					if (it1->second <= nbr[h].max) {
+						it1 = nbr[h].left.erase(it1);
+					} else {
+						++it1;
+					}
+				}
+			}
+			nbr[h].left.shrink_to_fit();
+
+			for (auto it1 = nbr[h].right.begin(); it1 != nbr[h].right.end(); ) {
+
+				Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
+				
+				if (it1->second <= nbr[h].max) {
+					it1 = nbr[h].right.erase(it1);
+				} else {
+					++it1;
+				}
+			}
+			nbr[h].right.shrink_to_fit();
+			// cout << "6\n";
 		}
 
-		for (auto it = m.begin(); it != m.end(); it++) {
-			
-			
-			if (min(overlap, it->second) <= global_visited_h[u]) {
-				// total_memory++;
-				continue;
-			} 
-	
 
-			//TODO modify here
-			// visited_h[it->first] = u;
-			Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
-		}
+
+		// visited_h[h] = overlap;
+		// if (u != h) {
+		// 	global_visited_h[h] = max(global_visited_h[h], overlap);
+		// } else {
+		// 	if (overlap <= global_visited_h[u]) continue;
+		// }
+
+		// cout << "7\n";
+
+
+		
+		// cout << "8\n";
+		
+		
+		
 		// cout << "next BFS to :\n";
-		m.clear();
+		// m.clear();
+		
+
+		// for (auto it = nbr[h].begin(); it != nbr[h].end(); ++it) {
+		// 	if (min(overlap, it->second) <= global_visited_h[u]) {
+		// 		continue;
+		// 	} 
+		// 	if (visited_h[it->first] >= min(overlap, it->second)) continue;
+		// 	visited_h[it->first] = it->second;
+			
+		// 	Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
+		// }
+
 	}
 	// global_visited_h[u] = max_h;
 
@@ -292,7 +304,7 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 	myfile.close();
 }
 
-void SL::construct() {
+void SL::construct(string scalePath) {
 	// cout << "Importance rank for edge is:\n";
 	// for (auto i = 1; i <= m; i++) {
 	// 	cout << order[i] << " ";
@@ -311,12 +323,43 @@ void SL::construct() {
 	cout << "ready to construct\n";
 
 
+	double avg = 0;
+	for (auto i = 1; i <= n; i++) {
+		avg += E[i].size();
+	}
+	avg /= n;
+	cout << "average neighbour = " << avg << "\n";
+
+
+	vector<vector<int>> hot;
+	vector<int> centrality;
+	for (auto i = 1; i <= n; i++) {
+		centrality.emplace_back(E[i].size());
+	}
+	sort(centrality.begin(), centrality.end());
+	double level = 0.85;
+	int count = 0;
+	double val = level + count * 0.03;
+	while (val < 1) {
+		cout << "at level " << val << " " << centrality[n * val] << "\n";
+		count += 1;
+		val = level + count * 0.03;
+
+		// cout << "val is " << val << "\n";
+	}
+
+	// while (true) {
+
+	// }
+
+
+
 	// int c;
 	// cin >> c;
 	// tmpE = new vector<int> [n+1];
 	// for (int i = 1; i <= n; i++) {
 	// 	for (auto v : E[i]) {
-	// 		tmpE[i].push_back(v);
+	// 		tmpE[i].emplace_back(v);
 	// 	}
 	// }
 	
@@ -340,6 +383,35 @@ void SL::construct() {
 	cout << "total n = " << n << ", single node = " << singleNode << "\n";
 
 
+	// while (true){}
+
+	// nbr = new vector<pair<int, int>>[m+1];
+	// for (int i = 1; i<=m; i++) {
+	// 	// if (i % 100 == 0) {
+	// 		cout << "nbr " << i << " finished\n";
+	// 	// }`
+	// 	map<int, int> m;
+	// 	for (auto v : graph_edge[idx[i]].node) {
+	// 		if (v > n) continue;
+	// 		for (auto nextH : E[v]) {
+	// 			if (order[nextH] <= i) continue;
+	// 			if (m.find(order[nextH]) != m.end()) {
+	// 				m[order[nextH]]++;
+	// 			} else {
+	// 				m.insert(make_pair(order[nextH], 1));
+	// 			}
+	// 		}
+	// 	}
+	// 	for (auto it = m.begin(); it != m.end(); ++it) {
+	// 		nbr[i].emplace_back(make_pair(it->first, it->second));
+	// 	}
+	// 	m.clear();
+
+	// }
+
+
+
+
 	ofstream myConstructionfile;
 	myConstructionfile.open ("construction.txt");
 	cout << "start construction\n";
@@ -357,9 +429,13 @@ void SL::construct() {
 		// cout << "construct for hID = " << i << " is finished\n";
 		
 		fill(visited, visited + n + 1, 0);
-		
+		fill(visited_h, visited_h + m + 1, 0);
 		construct_for_a_vertex(graph_edge, i, false);
 
+		nbr[i].left.clear();
+		nbr[i].left.shrink_to_fit();
+		nbr[i].right.clear();
+		nbr[i].right.shrink_to_fit();
 
 
 		if (i % 1000 == 1) {
@@ -374,14 +450,26 @@ void SL::construct() {
 	myConstructionfile.close();
 	cout << "construct time is " << elapsed_time.count() << "\n";
 	
-	std::cout << "Total memory usage increase: " << total_memory << " kB" << std::endl;
+
+	std::ofstream file(scalePath, std::ios::app);
+	if (!file.is_open()) {
+        std::cerr << "无法打开文件: " << scalePath << std::endl;
+        return;
+    }
+	file << "---------------------------------------------\n";
+	file << "---------------------------------------------\n";
+	// file << "construct time is " << elapsed_time.count() << "\n";
+	// file << "VTE Container size is " << sizeof(vector<Pair>) * n /1024 << "kb\n"; 
+	file << "\n";
+	
+
+	// std::cout << "Total memory usage increase: " << total_memory << " kB" << std::endl;
 		//  while (true) {
 
 		//  }
 	
-
 	
-
+ 
 
 
 
@@ -393,6 +481,7 @@ void SL::construct() {
 	cout << "construction finished\n";
 
 
+	
 
 
 	delete[] visited;
@@ -412,7 +501,48 @@ void SL::construct() {
 	ete /= m;
 	cout << "average vte = " << vte << "\n";
 	cout << "average ete = " << ete << "\n";
+	// while (true){
 
+	// }
+	// return;
+
+	long totalBytes = 0;
+	for (int i = 1; i < n + 1; ++i) {
+		totalBytes += sizeof(Pair) * label[i].size();
+	}
+
+	// std::ofstream file(scalePath, std::ios::app);
+	// if (!file.is_open()) {
+    //     std::cerr << "无法打开文件: " << scalePath << std::endl;
+    //     return;
+    // }
+	
+
+	// file << "VTE index size is " << totalBytes / 1024 << "kb\n";
+	// file << "VTE Container size is " << sizeof(vector<Pair>) * n /1024 << "kb\n"; 
+	// file << "\n";
+	// file.close();
+
+	file << "VTE index size is " << totalBytes / 1024 << "kb\n";
+	file << "VTE Container size is " << sizeof(vector<Pair>) * n /1024 << "kb\n"; 
+	
+	long eteBytes = 0;
+	for (int i = 1; i < m + 1; ++i) {
+		eteBytes += sizeof(Pair) * ete_label[i].size();
+	}
+	file << "ETE index size is " << eteBytes / 1024 << "kb\n";
+	file << "ETE Container size is " << sizeof(vector<Pair>) * m /1024 << "kb\n"; 
+	// long memoryBefore = getMemoryUsage();
+
+	long graphSize = 0;
+
+	for (auto i = 1; i <= n; i++) {
+		graphSize += E[i].size() * sizeof(int);
+	}
+	file << "Graph size is " << graphSize /1024 << "kb\n"; 
+	// delete[] label;
+	// cout << "VTE index size is " << label->size() * sizeof(Pair) / 1024 / 1024 << "\n";
+	// while (true){}
 
 
 	// int c;
@@ -420,7 +550,7 @@ void SL::construct() {
 	// tmpE = new vector<int> [n+1];
 	// for (int i = 1; i <= n; i++) {
 	// 	for (auto v : E[i]) {
-	// 		tmpE[i].push_back(v);
+	// 		tmpE[i].emplace_back(v);
 	// 	}
 	// }
 	
@@ -428,12 +558,12 @@ void SL::construct() {
 	// delete[] tmpE;
 	// tmpE = nullptr;
 	cout << "construction finished\n";
-	while (true) {
+	// while (true) {
 
-	}
+	// }
 	
-	int e;
-	cin >> e;
+	// int e;
+	// cin >> e;
 
 }
 
@@ -449,7 +579,7 @@ int SL::span_reach(int u, int v, int k, bool original_id) {
 		u = (*vertex_map)[u];
 		v = (*vertex_map)[v];		
 	}
-	
+	/*	
 	vector<Pair> *label_u, *label_v;
 
 	int tmp_u = u;
@@ -489,7 +619,27 @@ int SL::span_reach(int u, int v, int k, bool original_id) {
 		}
 
 	}
-	
+	*/
+
+	int overlap = 0;
+
+
+		auto srcIt = label[u].begin();
+		auto dstIt = label[v].begin();
+		while (srcIt != label[u].end() && dstIt != label[v].end()) {
+			if (srcIt->hID > dstIt->hID ) {
+				dstIt++;
+			} else if (srcIt->hID < dstIt->hID) {
+				srcIt++;
+			} else {
+				if (srcIt->overlap > overlap && dstIt->overlap > overlap) {
+					overlap = min(srcIt->overlap, dstIt->overlap);
+				}
+				srcIt++;
+				dstIt++;
+			}
+
+		}
 	return overlap;
 }
 
@@ -684,7 +834,7 @@ int SL::reach(int src, int dst, bool original_id) {
 	auto srcIt = label[src].begin();
 	auto dstIt = label[dst].begin();
 	while (srcIt != label[src].end() && dstIt != label[dst].end()) {
-		if (srcIt->hID > dstIt->hID ) {
+		if (srcIt->hID > dstIt->hID) {
 			dstIt++;
 		} else if (srcIt->hID < dstIt->hID) {
 			srcIt++;
@@ -715,8 +865,8 @@ int SL::baseLine(int src, int dst, bool original_id) {
 
 	vector<int> in_visit, out_visit;
 	for (auto i = 0; i <= m; i++) {
-		in_visit.push_back(0);
-		out_visit.push_back(0);
+		in_visit.emplace_back(0);
+		out_visit.emplace_back(0);
 	}
 	priority_queue<Pair_in_queue> Q_in, Q_out;
 

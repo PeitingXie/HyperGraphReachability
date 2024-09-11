@@ -25,6 +25,28 @@ struct Pair_in_queue {
 };
 
 
+struct CompareSecond {
+    bool operator()(const std::pair<int, int>& a, const std::pair<int, int>& b) const {
+        // 主要比较第二个元素
+        if (a.second != b.second) return a.second < b.second;
+        // 如果第二个元素相同，则比较第一个元素，以保证排序的唯一性
+        return a.first < b.first;
+    }
+};
+
+
+struct nbr_struct {
+	bool init;
+	int max;
+	vector<pair<int, int>> left; // 重要性更大(order 更小)
+	vector<pair<int, int>> right; // 重要性更小 
+};
+
+
+
+
+
+
 class SL
 {
 private:
@@ -56,11 +78,18 @@ private:
 	int *global_visited_h;
 
 
-	int *temp, *rank, *idx2;
+	int *temp, *rank, *penalty, *idx2;
 
 	vector<int> *tmpE;
 
 	long long total_memory;
+
+
+	struct nbr_struct* nbr; 
+	
+	// vector<pair<int, int>> *nbr;
+	
+
 
 	// TILL-Index
 	
@@ -85,7 +114,7 @@ public:
 	~SL();
 
 
-	void construct();
+	void construct(string scalePath);
 	void construct_for_a_vertex(HyperEdge * head, int u, bool update);
 	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
@@ -98,6 +127,8 @@ public:
 	void erase(int ts);
 
 	bool isCovered(int sign1, int sign2);
+	bool veCover(int h, int u, int overlap);
+	std::set<int> intersectAllSets(const std::vector<std::set<int>>& sets);
 	// use for calculating the sign of u->v from u->w to w->v 
 	int signCal(int sign1, int sign2);
 	// update sign when go to the next vertex
