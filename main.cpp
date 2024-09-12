@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
 	string twoHopOutput = degDist + folderName + "/spanReachTime";
 	string eteOutput = degDist + folderName + "/eteTime";
 	
-	for (auto overlap = 0; overlap < hot.size(); overlap++) {
+	for (auto overlap = 0; overlap < 1; overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;

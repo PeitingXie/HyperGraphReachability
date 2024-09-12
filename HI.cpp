@@ -103,6 +103,9 @@ SL::~SL()
 	if (idx) delete[] idx;
 	if (order) delete[] order;
 	if (nbr) delete[] nbr;
+	if (visited_h) delete[] visited_h;
+	if (global_visited_h) delete[] global_visited_h;
+	if (visited) delete[] visited;
 	// for baseline
 	if (allNbr) delete[] allNbr;
 }
@@ -225,19 +228,21 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			}
 			// cout << "b\n";
 			for (auto it = m.begin(); it != m.end(); it++) {
-				if (nbr[it->first].max < min(overlap, it->second)) {
-				// 	visited_h[it->first] = it->second;
+				
 					Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 					// if (it->first == 0) {
 					// 	cout << "insert 0???\n";
 					// }
-				}
+				
 				if (it->second > nbr[h].max && h > 1) {
-					if (it->first < h) {
-						nbr[h].left.emplace_back(make_pair(it->first, it->second));
-					} else {
-						nbr[h].right.emplace_back(make_pair(it->first, it->second));
-					}
+					
+					// if (it->first < h) {
+					// 	nbr[h].left.emplace_back(make_pair(it->first, it->second));
+					// } else {
+					// 	nbr[h].right.emplace_back(make_pair(it->first, it->second));
+					// }
+
+					nbr[h].left.emplace_back(make_pair(it->first, it->second));
 				}
 			}
 			m.clear();
@@ -253,6 +258,8 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			nbr[h].right.erase(nbr[h].right.begin(), it);
 			*/
 			nbr[h].max = overlap;
+
+			/*
 			if (u != h) {
 				for (auto it1 = nbr[h].left.begin(); it1 != nbr[h].left.end(); ) {
 					if (it1->first > u) {
@@ -281,6 +288,20 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 				}
 			}
 			nbr[h].right.shrink_to_fit();
+			*/
+			for (auto it1 = nbr[h].left.begin(); it1 != nbr[h].left.end(); ) {
+				if (it1->first > u) {
+					Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
+					// if (it1->first == 0) {
+					// 	cout << "insert 0???\n";
+					// }
+				}
+				if (it1->second <= nbr[h].max) {
+					it1 = nbr[h].left.erase(it1);
+				} else {
+					++it1;
+				}
+			}
 			// cout << "6\n";
 		}
 
