@@ -67,8 +67,33 @@ SL::SL(Graph *graph)
 	}
 
 	
-	
 
+	allNbr = new vector<pair<int, int>> [m + 1];
+	
+	for (auto i = 0; i < m; i++) {
+		map<int, int> m;
+		for (auto j : graph_edge[i].node) {
+			for (auto k : E[j]) {
+
+				if (m.find(k) != m.end()) {
+					m[k]++;
+				} else {
+					m.insert(make_pair(k, 1));
+				}
+			}
+		}
+		for (auto it = m.begin(); it != m.end(); ++it) {
+			allNbr[i].push_back(*it);
+		}
+	}
+	total_memory += sizeof(allNbr);
+	total_memory += (m + 1) * sizeof(std::vector<std::pair<int, int>>);
+	for (int i = 0; i <= m; ++i) {
+        total_memory += allNbr[i].capacity() * sizeof(std::pair<int, int>);
+    }
+
+	std::cout << "Total memory used by allNbr: " << total_memory / 1024 / 1024<< " MB" << std::endl;
+	// while(true){}
 }
 
 
@@ -79,6 +104,7 @@ SL::~SL()
 	if (order) delete[] order;
 	if (nbr) delete[] nbr;
 	// for baseline
+	if (allNbr) delete[] allNbr;
 }
 
 
@@ -904,7 +930,9 @@ int SL::baseLine(int src, int dst, bool original_id) {
 				in_visit[h] = o;
 				
 				map<int, int> m;
-	
+
+
+				/*
 				for (auto v : graph_edge[h].node) {
 					if (v > n) continue;
 					for (auto nextH : E[v]) {
@@ -926,6 +954,12 @@ int SL::baseLine(int src, int dst, bool original_id) {
 					Q_in.push(Pair_in_queue(it->first, min(it->second, o)));
 				}
 				m.clear();
+				*/
+				for (auto it = allNbr[h].begin(); it != allNbr[h].end(); ++it) {
+					if (it->second <= result) continue;
+					if (in_visit[it->first] >= min(it->second, o)) continue;
+					Q_in.push(Pair_in_queue(it->first, min(it->second, o)));
+				}
 			}
 			token = 1;
 		} else {
@@ -955,7 +989,7 @@ int SL::baseLine(int src, int dst, bool original_id) {
 				// 	Q_out.push(nextPair);
 				// }
 
-
+				/*
 				map<int, int> m;
 	
 				for (auto v : graph_edge[h].node) {
@@ -979,6 +1013,12 @@ int SL::baseLine(int src, int dst, bool original_id) {
 					Q_out.push(Pair_in_queue(it->first, min(it->second, o)));
 				}
 				m.clear();	
+				*/
+				for (auto it = allNbr[h].begin(); it != allNbr[h].end(); ++it) {
+					if (it->second <= result) continue;
+					if (out_visit[it->first] >= min(it->second, o)) continue;
+					Q_out.push(Pair_in_queue(it->first, min(it->second, o)));
+				}
 			}
 			token = 0;
 		}

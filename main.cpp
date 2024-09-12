@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 		}   
     }
 
-	string degDist = "deg/";
+	string degDist = "result_BFS/";
 
 	if (!std::filesystem::exists(degDist + folderName)) {
         try {
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
 
 	
 		
-		while (count < 10000) {
+		while (count < 1000) {
 			total++;
 			
 			int i = rand() % graph->n + 1;
@@ -471,6 +471,7 @@ int main(int argc, char *argv[])
 			
 			
 			cout << "baseline finished\n";
+			/*
 			start_time = std::chrono::high_resolution_clock::now();
 			auto res3 = alg->ete_reach(i, j, 1);
 			end_time = std::chrono::high_resolution_clock::now();
@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
 			std::ofstream myfile3(currEteOutFile, std::ios::app);
 			myfile3 << elapsed_time_span.count() << "\n";
 			myfile3.close();
-
+			*/
 
 
 			if (res1 != res2) {

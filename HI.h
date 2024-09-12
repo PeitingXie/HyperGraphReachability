@@ -89,23 +89,9 @@ private:
 	
 	// vector<pair<int, int>> *nbr;
 	
+	vector<pair<int, int>> *allNbr;
 
 
-	// TILL-Index
-	
-
-	// int *visited;
-	// int *inVisited;
-	// int *outVisited;
-	// int *biVisited;
-	
-	// int *cycleNum;
-	// int *branchVisited;
-
-
-	//map<pair<int, int>, vector<int>> inAncestor[10000001];
-
-	// most important node in negative cycle
 
 	
 
