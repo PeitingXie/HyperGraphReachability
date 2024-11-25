@@ -1,6 +1,6 @@
 # **Hypergraph Labelling Index**
 ---
-# *Data Processing"
+# *Data Processing*
 
 all input hypergraphs should be pre-processed in the format of 
 v1 v2 v...
