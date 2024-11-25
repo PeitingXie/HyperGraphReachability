@@ -36,6 +36,14 @@ int main(int argc, char *argv[])
         }
     }
 
+	if (!std::filesystem::exists(disFolder)) {
+        try {
+            std::filesystem::create_directory(disFolder);
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "创建文件夹时出现错误1: " << e.what() << std::endl;
+        }
+    }
+
 	if (!std::filesystem::exists(disPath)) {
         try {
             std::filesystem::create_directory(disPath);
@@ -186,123 +194,9 @@ int main(int argc, char *argv[])
 	ofstream fout(output_file);
 
 	int v, u, sign;
-	// cout <<"get vertex size:\n";
-	// for (int i = 1; i <= 12; i++) {
-	// 	cout << graph -> get_vertex_id(i) << " ";
-	// }
-	// cout << "\n";
 
-	//alg->estimate();
-	/*
-	cout << "new file-----------------------------------------\n";
-	while (fin >> u >> v >> sign) {
-		
-		int res = alg -> span_reach(u, v, sign, true);
-		if (res == 0) {
-			fout << "False" << endl;
-			//cout << "False" << "\n";
-		} else {
-			fout << "True" << endl;
-			//cout << "True\n";
-		}
-		//cout << count++ <<"\n";
-	}*/
-	
-
-	
-	// for (int i = 1; i <= graph->n; i++) {
-	// 	for (int j = 1; j <= graph->n; j++) {
-			
-			
-	// 	}
-	// }
-	
-
-
-
-	// for (auto i = 1; i <= graph->n; i++) {
-	// 	for (auto j = 1; j <= graph->n; j++) {
-	// 		for (auto k = 1; k <= 6; k++) {
-	// 			cout << "check " << i << ", " << j << ", " << k << "\n";
-	// 			auto res1 = alg->baseLine(i,j,k, 1);
-	// 			auto res2 = alg->span_reach(i,j,k, 1);
-	// 			if (res1 != res2) {
-	// 				cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-	// 				return 0;
-	// 			}
-				
-	// 		}
-	// 	}
-	// }
 	srand (time(NULL));
 
-
-
-
-	// int reach = 0;
-	// int total = 0;
-	// for (auto overlap = 0; overlap < min(graph->max_size,5); overlap++) {
-	// 	total++;
-	// 	int k;
-
-	// 	if (overlap == 0) {
-	// 		k = rand() % 6 + 1;
-
-	// 	} else {
-	// 		k = overlap;
-
-	// 	}
-
-
-	
-		
-		// int count = 0;
-		// int reach = 0;
-
-		// while (count < 100000) {
-			
-		// 	// int i = rand() % graph->n + 1;
-		// 	// int j = rand() % graph->n + 1;
-		// 	// int k = rand() % graph->max_size + 1;
-		// 	int i = 14838986;
-		// 	int j = 3862771;
-		// 	int k = 1;
-		// 	string currk;
-		// 	// if (overlap != 0) {
-		// 	// 	currk = to_string(k);
-		// 	// } else {
-		// 	// 	currk = "random";
-		// 	// }
-		// 	cout << "test " << count << " with " << i << ", " << j << ", " << k << "\n";
-			
-		// 	auto res1 = alg->baseLine(i,j,k, 1);
-		// 	// auto res1 = alg->baseline(246, 717, 125, 1);
-		// 	cout << "baseline finished\n";
-
-		// 	auto res2 = alg->span_reach(i,j,k, 1);
-		// 	// auto res2 = alg->span_reach(246, 717, 125, 1);
-		
-
-
-		// 	if (res1 != res2) {
-		// 		cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-		// 		return 0;
-		// 	}
-		// 	if (res1 == true) reach++;
-		// 	// break;
-		// 	count++;
-			
-		// }
-	//}
-		
-	
-
-
-
-
-
-	
-	
 	
 	std::string fullPath = argv[1];
 	size_t lastSlashPos = fullPath.find_last_of('/');
@@ -315,6 +209,15 @@ int main(int argc, char *argv[])
     }
 
 	string degDist = "result_BFS/";
+
+	if (!std::filesystem::exists(degDist)) {
+        try {
+            std::filesystem::create_directory(degDist);
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "创建文件夹时出现错误: " << e.what() << std::endl;
+        }
+    }
+
 
 	if (!std::filesystem::exists(degDist + folderName)) {
         try {
@@ -364,51 +267,6 @@ int main(int argc, char *argv[])
 		int count = 0;
 
 
-		// for (int i = 1; i < graph->n; i++) {
-		// 	for (int j = 1; j < graph->n; j++) {
-		// 		string currk;
-		// 		if (overlap != 0) {
-		// 			currk = to_string(k);
-		// 		} else {
-		// 			currk = "random";
-		// 		}
-		// 		cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
-				
-		// 		auto start_time = std::chrono::high_resolution_clock::now();
-				
-		// 		auto res1 = alg->baseLine(i,j,k, 1);
-		// 		cout << "baseline finished\n";
-		// 		auto end_time = std::chrono::high_resolution_clock::now();
-		// 		auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-		// 		// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-
-
-		// 		std::ofstream myfile(currBaseOutFile, std::ios::app);
-				
-		// 		myfile << elapsed_time_base.count() << "\n";
-		// 		myfile.close();
-				
-				
-		// 		start_time = std::chrono::high_resolution_clock::now();
-		// 		auto res2 = alg->span_reach(i,j,k, 1);
-		// 		end_time = std::chrono::high_resolution_clock::now();
-		// 		auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-		// 		// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-
-		// 		std::ofstream myfile2(currTwoHopOutFile, std::ios::app);
-				
-		// 		myfile2 << elapsed_time_span.count() << "\n";
-		// 		myfile2.close();
-
-
-		// 		if (res1 != res2) {
-		// 			cout << "failed, baseline is " << res1 << ", span reach is " << res2 << "\n" ;
-		// 			return 0;
-		// 		}
-		// 	}
-		// }
-
-	
 		
 		while (count < 1000) {
 			total++;

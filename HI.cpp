@@ -150,23 +150,8 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 	int max_h = 0;
 	long long total = 0;
 	int execute = 0;
-	// if (u != 1) {
-	// 	cout << "init memory = " << memoryBefore << "\n";
-	// 	// while (true) {
-
-	// 	// }
-	// }
-
-
-	
-
 	
 	while (!Q.empty()) {
-		// count++;
-		// if (count % 10 == 0) {
-		// 	total += getMemoryUsage() - memoryBefore;
-		// }
-		// if (count > 10) break;
 		Pair_in_queue pair = Q.top();
 		Q.pop();
 		int h = pair.hID;
@@ -200,8 +185,6 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			continue;
 		}
 
-		// cout << "h = " << h << "\n";
-		// if (h == 0) cout << "got 0???\n";
 		if (!nbr[h].init) {
 			// cout << "h is " << h << "\n";
 			// cout << "2\n";
@@ -228,73 +211,20 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			}
 			// cout << "b\n";
 			for (auto it = m.begin(); it != m.end(); it++) {
-				
-					Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
-					// if (it->first == 0) {
-					// 	cout << "insert 0???\n";
-					// }
-				
+				Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
 				if (it->second > nbr[h].max && h > 1) {
-					
-					// if (it->first < h) {
-					// 	nbr[h].left.emplace_back(make_pair(it->first, it->second));
-					// } else {
-					// 	nbr[h].right.emplace_back(make_pair(it->first, it->second));
-					// }
-
+	
 					nbr[h].left.emplace_back(make_pair(it->first, it->second));
 				}
 			}
 			m.clear();
 			// cout << "3\n";
 		} else if (overlap <= nbr[h].max) {
-			// cout << "4\n";
 		} else {
-			// cout << "5\n";
-			/*
-			auto it = nbr[h].left.lower_bound({0, overlap});
-			nbr[h].left.erase(nbr[h].left.begin(), it);
-			it = nbr[h].right.lower_bound({0, overlap});
-			nbr[h].right.erase(nbr[h].right.begin(), it);
-			*/
 			nbr[h].max = overlap;
-
-			/*
-			if (u != h) {
-				for (auto it1 = nbr[h].left.begin(); it1 != nbr[h].left.end(); ) {
-					if (it1->first > u) {
-						Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
-						// if (it1->first == 0) {
-						// 	cout << "insert 0???\n";
-						// }
-					}
-					if (it1->second <= nbr[h].max) {
-						it1 = nbr[h].left.erase(it1);
-					} else {
-						++it1;
-					}
-				}
-			}
-			nbr[h].left.shrink_to_fit();
-
-			for (auto it1 = nbr[h].right.begin(); it1 != nbr[h].right.end(); ) {
-
-				Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
-				
-				if (it1->second <= nbr[h].max) {
-					it1 = nbr[h].right.erase(it1);
-				} else {
-					++it1;
-				}
-			}
-			nbr[h].right.shrink_to_fit();
-			*/
 			for (auto it1 = nbr[h].left.begin(); it1 != nbr[h].left.end(); ) {
 				if (it1->first > u) {
 					Q.push(Pair_in_queue(it1->first, min(overlap, it1->second)));
-					// if (it1->first == 0) {
-					// 	cout << "insert 0???\n";
-					// }
 				}
 				if (it1->second <= nbr[h].max) {
 					it1 = nbr[h].left.erase(it1);
@@ -304,37 +234,6 @@ void SL::construct_for_a_vertex(HyperEdge * head,  int u, bool update) {
 			}
 			// cout << "6\n";
 		}
-
-
-
-		// visited_h[h] = overlap;
-		// if (u != h) {
-		// 	global_visited_h[h] = max(global_visited_h[h], overlap);
-		// } else {
-		// 	if (overlap <= global_visited_h[u]) continue;
-		// }
-
-		// cout << "7\n";
-
-
-		
-		// cout << "8\n";
-		
-		
-		
-		// cout << "next BFS to :\n";
-		// m.clear();
-		
-
-		// for (auto it = nbr[h].begin(); it != nbr[h].end(); ++it) {
-		// 	if (min(overlap, it->second) <= global_visited_h[u]) {
-		// 		continue;
-		// 	} 
-		// 	if (visited_h[it->first] >= min(overlap, it->second)) continue;
-		// 	visited_h[it->first] = it->second;
-			
-		// 	Q.push(Pair_in_queue(it->first, min(overlap, it->second)));
-		// }
 
 	}
 	// global_visited_h[u] = max_h;
