@@ -1,7 +1,7 @@
 #include "graph.h"
 
 
-Graph::Graph(char *graph_file, bool _directed)
+Graph::Graph(char *graph_file, bool _directed, double _scale)
 {
 	max_v = 20000000;
 	max_e = 100000000;
@@ -37,6 +37,7 @@ Graph::Graph(char *graph_file, bool _directed)
 	int num = 0;
 	int count = 0;
 	int maxESize = 0;
+	vector<vector<int>> allData;
     while (getline(fin, line)) {
         // 使用 stringstream 将一行数据按空格分割
 
@@ -65,7 +66,10 @@ Graph::Graph(char *graph_file, bool _directed)
 			cout << "input for line " << count << "\n";
 		}
 		count++;
-        insert_edge(tokens);
+
+		// cout << "?????????????\n";
+		allData.push_back(tokens);
+        // insert_edge(tokens);
 
         // for (auto token : tokens) {
         //     std::cout << token << " ";
@@ -73,6 +77,13 @@ Graph::Graph(char *graph_file, bool _directed)
 
         // std::cout << std::endl;
     }
+
+	cout << "all Data size is " << allData.size() * _scale << " ====================================================\n";
+	for (auto i = 0; i < allData.size() * _scale; i++) {
+		insert_edge(allData[i]);
+	}
+
+
 	cout << "data reading is finished\n";
 	cout << "total usefule edge num is " << m << "\n";
 	cout << "edge num where size = 1 is :" << num << "\n";

@@ -20,6 +20,7 @@
 #include <time.h>
 #include <filesystem>
 #include <cmath>
+#include <unordered_set>
 using namespace std;
 
 struct HyperEdge
@@ -38,7 +39,7 @@ public:
 	int n, m, max_size;
 
 	bool directed; // directed graph or undirected graph
-
+	double scale;
 	// graph and reversed graph
 	HyperEdge *graph_edge;
 
@@ -54,7 +55,7 @@ public:
 	map<int, int> vertex_map; // original ID --> new ID
 
 
-	Graph(char *graph_file, bool directed);
+	Graph(char *graph_file, bool directed, double scale);
 	~Graph();
 
 	void insert_edge(vector<int> nodes);

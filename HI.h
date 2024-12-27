@@ -1,7 +1,7 @@
 #include "graph.h"
 
 
-struct Pair // triplet in TILL-Index
+struct Pair // pair in HL-Index
 {
 	int hID;
 	int overlap;
@@ -13,11 +13,25 @@ struct Pair // triplet in TILL-Index
 };
 
 
+struct QPair // triplet in TILL-Index
+{
+	int vID;
+	int overlap;
+	QPair(int _vID, int _overlap): vID(_vID), overlap(_overlap) {};
+	// bool operator< (const QPair &x) const
+	// {
+	// 	return overlap > x.overlap;
+	// }
+};
+
+
+
 
 struct Pair_in_queue {
 	int hID;
 	int overlap;
-	Pair_in_queue(int _hID, int _overlap): hID(_hID), overlap(_overlap) {};
+	int cover;
+	Pair_in_queue(int _hID, int _overlap, int _cover): hID(_hID), overlap(_overlap), cover(_cover) {};
 	bool operator< (const Pair_in_queue &x) const
 	{
 		return overlap < x.overlap;
@@ -56,14 +70,26 @@ private:
 	int *global_visited_h;
 
 
-	int *temp, *rank, *idx2;
+	int *temp, *rank, *penalty, *idx2;
 
 	vector<int> *tmpE;
 
 	long long total_memory;
 
-	// TILL-Index
+	int total_count;
 	
+	vector<pair<int, int>> *nbr;
+	vector<pair<int, int>> *allNbr;
+
+	// TILL-Index
+
+
+	map<int, int> * D;
+	vector<QPair> * QPairs; 
+	int * C;
+	// set<int> * inverted;
+
+	set<int> * W;
 
 	// int *visited;
 	// int *inVisited;
@@ -85,7 +111,7 @@ public:
 	~SL();
 
 
-	void construct();
+	void construct(string scalePath);
 	void construct_for_a_vertex(HyperEdge * head, int u, bool update);
 	void add_triplet(vector<Pair> *currLabel, int u, int h, int overlap, bool update);
 	
@@ -98,6 +124,8 @@ public:
 	void erase(int ts);
 
 	bool isCovered(int sign1, int sign2);
+	bool veCover(int h, int u, int overlap);
+	std::set<int> intersectAllSets(const std::vector<std::set<int>>& sets);
 	// use for calculating the sign of u->v from u->w to w->v 
 	int signCal(int sign1, int sign2);
 	// update sign when go to the next vertex
@@ -108,14 +136,17 @@ public:
 	
 	void freeBaseline(int *visited);
 	bool baseIsCovered(int sign1, int sign2);
-	
-
-
+	int baseLine_with_nbr(int src, int dst, bool original_id);
+	int threshold_baseLine(int src, int dst, bool original_id, int k);
+	int threshold_reach(int src, int dst, bool original_id, int k);
+	int cover_check(int src, int dst, int k);
+	int threshold_ete_reach(int src, int dst, bool original_id, int k);
 	void estimate();
 	//bool compareByFirstElement(const Pair_advanced& lhs, const Pair_advanced& rhs);
 	//void SL::updateMustVisit(vector<mustVisit> *label_advanced_construct, int u, int v, int sign, vector<int> path, map<pair<int, int>, vector<int>> *visitedNode, vector<pair<int, set<levelRecord>>> *levelRecord);
-
+	// int ete_reach(int src, int dst, bool original_id);
 
 	long getMemoryUsage();
+	int reach1(int src, int dst, bool original_id);
 
 };
