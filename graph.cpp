@@ -3,7 +3,7 @@
 
 Graph::Graph(char *graph_file, bool _directed, double _scale)
 {
-	max_v = 20000000;
+	max_v = 50000000;
 	max_e = 100000000;
 	
 	n = 0;
@@ -71,11 +71,6 @@ Graph::Graph(char *graph_file, bool _directed, double _scale)
 		allData.push_back(tokens);
         // insert_edge(tokens);
 
-        // for (auto token : tokens) {
-        //     std::cout << token << " ";
-        // }
-
-        // std::cout << std::endl;
     }
 
 	cout << "all Data size is " << allData.size() * _scale << " ====================================================\n";
@@ -90,7 +85,7 @@ Graph::Graph(char *graph_file, bool _directed, double _scale)
 	cout << "total n = " << n << ", m" << num + m << "\n";
 	
 	fin.close();
-
+	old_vertex_map = vertex_map;
 	int singleNode = 0;
 	int effect = 0;
 	for (auto i = 1; i <= m; i++) {
@@ -105,9 +100,11 @@ Graph::Graph(char *graph_file, bool _directed, double _scale)
 		}
 		if (head == -1) continue;
 		// if (head == -1) head = graph_edge[i].node[0];
+		
 		for (auto it = graph_edge[i].node.begin(); it != graph_edge[i].node.end();) {
 			if (E[*it].size() == 1 && *it != head) {
 				// cout << "1\n";
+				reverse_compact[head].push_back(*it);
 				vertex_map[vertex_id[*it]] = vertex_map[vertex_id[head]];
 				it = graph_edge[i].node.erase(it);
 				// it++;
@@ -121,7 +118,8 @@ Graph::Graph(char *graph_file, bool _directed, double _scale)
 
 	}
 	cout << "effect on " << effect << " edges\n";
-
+	cout << "single node number = " << singleNode << "\n";
+	// while (true){}
 
 	cout << "max E size is " << max_size << "\n";
 	int maxDeg = 0;

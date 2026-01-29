@@ -52,8 +52,9 @@ public:
 
 
 	int *vertex_id; // new ID --> original ID
-	map<int, int> vertex_map; // original ID --> new ID
+	map<int, int> vertex_map, old_vertex_map; // original ID --> new ID
 
+	map<int, vector<int>> reverse_compact;
 
 	Graph(char *graph_file, bool directed, double scale);
 	~Graph();

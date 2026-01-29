@@ -1,6 +1,6 @@
 #include "HI.h"
 
-
+std::vector<int> select_important_nodes(HyperEdge* graph_edge, int actual_edge_count, int num_nodes);
 int main(int argc, char *argv[])
 {
 	bool directed = false;
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
 	
 	while (val < 1) {
 		threshold.push_back(centrality[graph->n * val]);
-		count += 1;
 		val = level + count * 0.2;
+		count += 1;
 		hot.push_back(vector<int>());
 		// cout << "val is " << val << "\n";
 	}
@@ -132,13 +132,96 @@ int main(int argc, char *argv[])
 
 	
 	alg -> construct(filePath);
-	return 0;
+	// return 0;
 	cout << "construct complete\n";
 	// return 0;
 	char* query_file = argv[3];
 	char* output_file = argv[4];
 
-    
+ 
+
+	// =================================================================
+	// ======================== for node insertion =====================
+	auto total_insert = 0;
+	auto avg_insert_time_in_ns = 0;
+
+	// alg->insert_node(530, 323);
+
+	if (!std::filesystem::exists(dictPath + "/insert.txt")) {
+        std::ofstream insert_gen(dictPath + "/insert.txt", std::ofstream::trunc);
+		for (auto i = 0; i < 50; i++) {
+			int u = rand() % graph->m + 1;
+			int v = rand() % graph->n + 1;
+			insert_gen << u << " " << v << "\n";
+		}
+		insert_gen.close();
+    }
+
+
+	// for (auto i = 0; i < 100; i++) {
+	std::ifstream insertquery(dictPath + "/insert.txt");
+	int edge, node;
+	auto i = 1;
+	std::string logPath = dictPath + "/insert.log";
+	std::ofstream insertLog(logPath, std::ios::trunc);
+	std::cerr << "log path = " << logPath << "\n";
+	std::cerr << "insertLog is_open = " << insertLog.is_open() << "\n";
+
+	insertLog << "BEGIN\n";
+	insertLog.flush();
+
+	int loop_cnt = 0;
+
+	
+
+
+	while (insertquery >> edge >> node) {
+		++loop_cnt;
+		insertLog << i << "(" << edge << ", " << graph->vertex_id[node] << ")\n";
+		cout << "******************************" <<i << "(" << edge << ", " << graph->vertex_id[node] << ")\n";
+		auto res = alg->insert_node(edge, node);
+		if (res) cout << "success\n";
+		alg->print_prof(insertLog);
+		insertLog.flush();   // 排查阶段先强制落盘
+		++i;
+		total_insert += res;
+	}
+
+	insertLog << "END loop_cnt=" << loop_cnt << "\n";
+	insertLog.flush();
+
+
+	// alg->print_prof();
+
+	cout << "total valid insert = " << total_insert << "\n";
+	// cout << "avg_insert_time in ns = " << avg_insert_time_in_ns / total_insert << "\n";
+
+
+	return 0;
+
+	insertLog.close();
+			
+
+			// auto res1 = alg->threshold_baseLine(i,j, 1, t_value);
+			// auto res1 = alg->baseLine(i,j, 1);
+			// auto res1 = alg->ete_reach(i, j, 1);
+			// auto res1 = alg->reach1(i,j, 1);
+			// auto resMin = alg->reach(i, j, 1);
+			
+			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			
+			// Minimal << elapsed_time_min.count() << "\n";
+	// return 0;
+
+
+
+
+
+
+
+	// =================================================================
+
+
 
 
 
@@ -363,15 +446,16 @@ int main(int argc, char *argv[])
 
 	cout << "max size is " << graph->max_size << "\n";
 
-	// string baseOutput = "ete_test_result/" + folderName + "/basetime";
-	// string base1Output = "ete_test_result/" + folderName + "/base1time";
-	// string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
-	// string eteOutput = "ete_test_result/" + folderName + "/eteTime";
+	string baseOutput = "ete_test_result/" + folderName + "/basetime";
+	string base1Output = "ete_test_result/" + folderName + "/base1time";
+	string twoHopOutput = "ete_test_result/" + folderName + "/spanReachTime";
+	string eteOutput = "ete_test_result/" + folderName + "/eteTime";
+	string minOutput = "ete_test_result/" + folderName + "/minTime";
 	// "threshold/" + to_string(t_value) + "/" + folderName
-	string baseOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/basetime";
-	string base1Output = "threshold/" + to_string(t_value) + "/" + folderName + "/base1time";
-	string twoHopOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/spanReachTime";
-	string eteOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/eteTime";
+	// string baseOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/basetime";
+	// string base1Output = "threshold/" + to_string(t_value) + "/" + folderName + "/base1time";
+	// string twoHopOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/spanReachTime";
+	// string eteOutput = "threshold/" + to_string(t_value) + "/" + folderName + "/eteTime";
 	// string baseOutput = dictPath + "/query_time/" + to_string(static_cast<int>(scale * 100)) + "/basetime";
 	// string base1Output = dictPath + "/query_time/" + to_string(static_cast<int>(scale * 100)) + "/base1time";
 	// string twoHopOutput = dictPath + "/query_time/" + to_string(static_cast<int>(scale * 100)) + "/spanReachTime";
@@ -381,17 +465,29 @@ int main(int argc, char *argv[])
 	std::ofstream testmr("record/" + folderName+"min.txt", std::ios::trunc);
 
 
+// vector<int> randomV = {659, 30, 69, 61, 36, 1087, 86, 3191, 4612, 3352};
 
-	for (auto overlap = 0; overlap < 1; overlap++) {
+// for (auto it1 = randomV.begin(); it1 != randomV.end(); ++it1) {
+//     for (auto it2 = randomV.begin(); it2 != randomV.end(); ++it2) {
+//         if (it1 == it2) continue;
+//         int result = alg->reach(*it1, *it2, 1);
+//         cout << "max-reachability(" << *it1 << ", " << *it2 << ") = " << result << "\n";
+//     }
+// }
+
+
+
+// 	while(true){}
+	for (auto overlap = 0; overlap <= 4; overlap++) {
 		int reach = 0;
 		int total = 0;
 		int k;
-		string currBaseOutFile, currBaseNbrFile;
+		string currBaseOutFile, currBaseNbrFile, minFile;
 		string currTwoHopOutFile; 
 		string currEteOutFile; 
 
 		
-		
+		minFile = minOutput + to_string(overlap) + ".txt";
 		currBaseOutFile = baseOutput + to_string(overlap) + ".txt";
 		currBaseNbrFile = base1Output + to_string(overlap) + ".txt";
 		currTwoHopOutFile = twoHopOutput + to_string(overlap) + ".txt";
@@ -403,11 +499,13 @@ int main(int argc, char *argv[])
 		// std::ofstream outputFile(currBaseOutFile, std::ios::trunc);
 		// outputFile.close();
 
-		std::ofstream outputFile2(currTwoHopOutFile, std::ios::trunc);
-		outputFile2.close();
+		// std::ofstream outputFile2(currTwoHopOutFile, std::ios::trunc);
+		// outputFile2.close();
 
-		std::ofstream outputFile3(currEteOutFile, std::ios::trunc);
-		outputFile3.close();
+		// std::ofstream outputFile3(currEteOutFile, std::ios::trunc);
+		// outputFile3.close();
+		std::ofstream outputFile(minFile, std::ios::trunc);
+		outputFile.close();
 
 		int count = 0;
 
@@ -420,21 +518,21 @@ int main(int argc, char *argv[])
 		// 		} else {
 		// 			currk = "random";
 		// 		}
-		// 		cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
+				// cout << "test " << count << " with " << i << ", " << j << ", " << currk << "\n";
 				
-		// 		auto start_time = std::chrono::high_resolution_clock::now();
+				// auto start_time = std::chrono::high_resolution_clock::now();
 				
-		// 		auto res1 = alg->baseLine(i,j,k, 1);
-		// 		cout << "baseline finished\n";
-		// 		auto end_time = std::chrono::high_resolution_clock::now();
-		// 		auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-		// 		// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+				// auto res1 = alg->baseLine(i,j, 1);
+				// cout << "baseline finished\n";
+				// auto end_time = std::chrono::high_resolution_clock::now();
+				// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+				// // auto elapsed_time_base = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 
 
-		// 		std::ofstream myfile(currBaseOutFile, std::ios::app);
+				// std::ofstream myfile(currBaseOutFile, std::ios::app);
 				
-		// 		myfile << elapsed_time_base.count() << "\n";
-		// 		myfile.close();
+				// myfile << elapsed_time_base.count() << "\n";
+				// myfile.close();
 				
 				
 		// 		start_time = std::chrono::high_resolution_clock::now();
@@ -457,16 +555,23 @@ int main(int argc, char *argv[])
 		// }
 
 		
+		// while (true){}
+
+		std::ofstream Minimal(minFile, std::ios::app);
+		std::ifstream input_query(dictPath + "/query.txt");
+		string src, dst;
+
 		
 
 
-		std::ifstream input_query(dictPath + "/query.txt");
-		string src, dst;
-		while (input_query >> src >> dst) {
-		// while (count < 1000) {
+		
+
+
+		// while (input_query >> src >> dst) {
+		while (total < 1000) {
 			total++;
-			int i = stoi(src);
-			int j = stoi(dst);
+			// int i = stoi(src);
+			// int j = stoi(dst);
 			// int i = rand() % graph->n + 1;
 			// int j = rand() % graph->n + 1;
 			// cout << "i = " << i << ", j = " << j << "\n";
@@ -474,25 +579,26 @@ int main(int argc, char *argv[])
 			// int dstID = rand() % hot[overlap].size();
 			// int i = hot[overlap][srcID];
 			// int j = hot[overlap][dstID];
-			// i = rand() % graph->n + 1;
-			// j = rand() % graph->n + 1;
+			auto i = rand() % graph->n + 1;
+			auto j = rand() % graph->n + 1;
+			// i = 52;
+			// j = 57;
+			// i = 11;
+			// j = 35;
 			// i = 857;
 			// j = 2636;
 			// k = 4; 
 			// i = 2;
 			// j = 7;
 
-			if (total == 500000) {
+			if (total == 10001) {
 				// count ++;
 				break;
 				// continue;
 			}
-			cout << "test " << count << " with " << i << ", " << j << "\n";
-
-
-
-
-
+			
+			cout << "test " << count << " with " << graph->vertex_id[i] << ", " << graph->vertex_id[j] << ", with original id = " << i << ", " << j <<"\n";
+			// 1254, 1203
 
 			auto start_time = std::chrono::high_resolution_clock::now();
 			
@@ -501,8 +607,25 @@ int main(int argc, char *argv[])
 			// auto res1 = alg->baseLine(i,j, 1);
 			// auto res1 = alg->ete_reach(i, j, 1);
 			// auto res1 = alg->reach1(i,j, 1);
-			auto res1 = 0;
+			// auto resMin = alg->reach(i, j, 1);
 			auto end_time = std::chrono::high_resolution_clock::now();
+			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			auto elapsed_time_min = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			Minimal << elapsed_time_min.count() << "\n";
+			// continue;
+			// cout << "result is " << res1 << "\n";
+
+
+
+			start_time = std::chrono::high_resolution_clock::now();
+			
+
+			// auto res1 = alg->threshold_baseLine(i,j, 1, t_value);
+			auto res1 = alg->baseLine(i,j, 0);
+			// auto res1 = alg->reach(i, j, 1);
+			// auto res1 = alg->reach1(i,j, 1);
+			// auto res1 = 0;
+			end_time = std::chrono::high_resolution_clock::now();
 			// auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			auto elapsed_time_base = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 			cout << "result is " << res1 << "\n";
@@ -516,33 +639,34 @@ int main(int argc, char *argv[])
 
 			// start_time = std::chrono::high_resolution_clock::now();
 			
-			// auto res2 = alg->baseLine_with_nbr(i,j,1);
+			// // auto res2 = alg->baseLine_with_nbr(i,j,1);
+			// auto res2 = alg->reach(i, j, 1);
 			//  end_time = std::chrono::high_resolution_clock::now();
-			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-			auto time_with_nbr = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			// // auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			// auto time_with_nbr = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-			std::ofstream myfile_nbr(currBaseNbrFile, std::ios::app);
+			// std::ofstream myfile_nbr(currBaseNbrFile, std::ios::app);
 			
-			myfile_nbr << time_with_nbr.count() << "\n";
-			myfile_nbr.close();
+			// myfile_nbr << time_with_nbr.count() << "\n";
+			// myfile_nbr.close();
 
 
 
 
 
 			
-			start_time = std::chrono::high_resolution_clock::now();
+			// start_time = std::chrono::high_resolution_clock::now();
 			
-			// auto res3 = alg->threshold_reach(i,j,1, t_value);
-			auto res3 = alg->reach(i,j,1);
-			 end_time = std::chrono::high_resolution_clock::now();
-			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-			auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-			testmr << res3 << "\n";
-			std::ofstream myfile2(currTwoHopOutFile, std::ios::app);
+			// // auto res3 = alg->threshold_reach(i,j,1, t_value);
+			// auto res3 = alg->ete_reach(i,j,1);
+			//  end_time = std::chrono::high_resolution_clock::now();
+			// // auto elapsed_time_span = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			// auto elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			// testmr << res3 << "\n";
+			// std::ofstream myfile2(currEteOutFile, std::ios::app);
 			
-			myfile2 << elapsed_time_span.count() << "\n";
-			myfile2.close();
+			// myfile2 << elapsed_time_span.count() << "\n";
+			// myfile2.close();
 
 
 			//    
@@ -550,12 +674,12 @@ int main(int argc, char *argv[])
 			
 			cout << "baseline finished\n";
 			start_time = std::chrono::high_resolution_clock::now();
-			// auto res4 = alg->threshold_ete_reach(i, j, 1, t_value);
+			auto res4 = alg->reach(i, j, 0);
 			end_time = std::chrono::high_resolution_clock::now();
-			elapsed_time_span = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+			auto elapsed_time_ete = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
 			
-			std::ofstream myfile3(currEteOutFile, std::ios::app);
-			myfile3 << elapsed_time_span.count() << "\n";
+			std::ofstream myfile3(currTwoHopOutFile, std::ios::app);
+			myfile3 << elapsed_time_ete.count() << "\n";
 			// cout << "ete time is " << elapsed_time_span.count() << "ns\n";
 			myfile3.close();
 
@@ -570,11 +694,11 @@ int main(int argc, char *argv[])
 			file4.close();
 
 			
-			// if (res1 != res3) {
-			// 	cout << "failed, baseline is " << res1 << ", vte_reach is " << res3 << "\n" ;
-			// 	return 0;
-			// }
-			if (res3 > 1) reach++;
+			if (res1 != res4) {
+				cout << "failed, baseline is " << res1 << ", reach is " << res4 << "\n" ;
+				return 0;
+			}
+			if (res4 > 1) reach++;
 			count++;
 			
 		}
@@ -648,4 +772,120 @@ int main(int argc, char *argv[])
 
 
 	return 0;
+}
+
+std::vector<int> select_important_nodes(HyperEdge* graph_edge, int actual_edge_count, int num_nodes) {
+    if (graph_edge == nullptr) {
+        return {};
+    }
+
+    // 1. 构建数据结构
+    std::unordered_map<int, std::unordered_set<int>> node_to_hyperedges; // 节点到超边索引的映射
+
+    // 遍历所有实际存在的超边（从索引1到actual_edge_count）
+    for (int i = 1; i <= actual_edge_count; i++) {
+        // 遍历当前超边的所有节点
+        for (auto it = graph_edge[i].node.begin(); it != graph_edge[i].node.end(); ++it) {
+            int node = *it;
+            node_to_hyperedges[node].insert(i); // 记录节点属于哪个超边
+        }
+    }
+
+    // 获取所有节点
+    std::vector<int> all_nodes;
+    for (const auto& pair : node_to_hyperedges) {
+        all_nodes.push_back(pair.first);
+    }
+
+    // 调试信息
+    std::cout << "实际超边数: " << actual_edge_count << std::endl;
+    std::cout << "总共节点数: " << all_nodes.size() << std::endl;
+    std::cout << "需要选择的节点数: " << num_nodes << std::endl;
+
+    // 如果节点数不足，返回所有节点
+    if (all_nodes.size() <= num_nodes) {
+        std::cout << "节点数量不足，返回所有 " << all_nodes.size() << " 个节点" << std::endl;
+        return all_nodes;
+    }
+
+    // 2. 计算每个节点的超边度
+    std::unordered_map<int, int> hyperedge_degree;
+    for (const auto& pair : node_to_hyperedges) {
+        hyperedge_degree[pair.first] = pair.second.size();
+    }
+
+    // 3. 计算每个节点的综合重要性分数
+    std::unordered_map<int, double> node_score;
+    for (int node : all_nodes) {
+        const auto& neighbor_hyperedges = node_to_hyperedges[node];
+        std::unordered_set<int> neighbor_nodes;
+
+        // 收集所有邻居节点（共享超边的节点）
+        for (int edge_idx : neighbor_hyperedges) {
+            for (int n : graph_edge[edge_idx].node) {
+                if (n != node) {
+                    neighbor_nodes.insert(n);
+                }
+            }
+        }
+
+        // 计算邻居超边度之和
+        double neighbor_score_sum = 0.0;
+        for (int neighbor : neighbor_nodes) {
+            neighbor_score_sum += hyperedge_degree[neighbor];
+        }
+
+        // 重要性分数 = 自身的超边度 + 邻居超边度之和的加权
+        node_score[node] = hyperedge_degree[node] + 0.1 * neighbor_score_sum;
+    }
+
+    // 4. 贪心算法选择节点
+    std::vector<int> selected_nodes;
+    std::unordered_set<int> covered_hyperedges; // 已覆盖的超边索引
+
+    for (int i = 0; i < num_nodes; ++i) {
+        int best_node = -1;
+        double best_gain = -1.0;
+        
+        for (int node : all_nodes) {
+            // 跳过已选节点
+            if (std::find(selected_nodes.begin(), selected_nodes.end(), node) != selected_nodes.end()) {
+                continue;
+            }
+
+            const auto& node_edges = node_to_hyperedges[node];
+            int num_new = 0;
+            
+            // 计算新覆盖的超边数量
+            for (int edge_idx : node_edges) {
+                if (covered_hyperedges.find(edge_idx) == covered_hyperedges.end()) {
+                    num_new++;
+                }
+            }
+
+            double gain = num_new + 0.01 * node_score[node];
+
+            if (gain > best_gain) {
+                best_gain = gain;
+                best_node = node;
+            }
+        }
+
+        if (best_node == -1) {
+            break; // 没有更多节点可选
+        }
+
+        selected_nodes.push_back(best_node);
+        
+        // 更新已覆盖的超边
+        const auto& edges_to_add = node_to_hyperedges[best_node];
+        for (int edge_idx : edges_to_add) {
+            covered_hyperedges.insert(edge_idx);
+        }
+        
+        std::cout << "选择了节点: " << best_node << "，增益: " << best_gain 
+                  << "，分数: " << node_score[best_node] << std::endl;
+    }
+
+    return selected_nodes;
 }

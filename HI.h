@@ -30,19 +30,61 @@ struct QPair // triplet in TILL-Index
 struct Pair_in_queue {
 	int hID;
 	int overlap;
-	int cover;
-	Pair_in_queue(int _hID, int _overlap, int _cover): hID(_hID), overlap(_overlap), cover(_cover) {};
+	Pair_in_queue(int _hID, int _overlap): hID(_hID), overlap(_overlap){};
 	bool operator< (const Pair_in_queue &x) const
 	{
 		return overlap < x.overlap;
 	}
 };
 
+struct nbr_struct {
+	bool init;
+	int max;
+	vector<pair<int, int>> left; // 重要性更大(order 更小)
+	vector<pair<int, int>> right; // 重要性更小 
+};
+
+
+
+struct BlockStat {
+    int64_t calls = 0;
+    int64_t total_ns = 0;
+    void add(int64_t ns) { ++calls; total_ns += ns; }
+    double avg_ns() const { return calls ? (double)total_ns / (double)calls : 0.0; }
+};
+
+struct BlockTimer {
+    using Clock = std::chrono::steady_clock;
+    BlockStat& stat;
+    Clock::time_point st;
+    explicit BlockTimer(BlockStat& s) : stat(s), st(Clock::now()) {}
+    ~BlockTimer() {
+        auto ed = Clock::now();
+        stat.add(std::chrono::duration_cast<std::chrono::nanoseconds>(ed - st).count());
+    }
+};
+
+
+struct InsertProfile {
+    BlockStat total;
+
+    BlockStat check_exist;          // lower_bound + 判断是否已存在
+    BlockStat init_and_remap;       // fill(visited_h) + E.size==1 remap
+    BlockStat update_struct;        // 插入到 graph_edge + 插入到 E[v]
+    BlockStat build_cnt;            // isCand + cnt 计算
+    BlockStat build_onehop;         // oneHopNbr / pq 初始入队
+    BlockStat prefmax;              // pref_max 构建
+    BlockStat pq_loop;              // while(!pq.empty()) 整体
+    BlockStat update_ete_label;     // ete_label[selected_edge] 的插入/更新那段
+    BlockStat expand_nbrs;          // nbrs map 构建 + push pq
+	BlockStat ete_check;
+};
+
 
 class SL
 {
 private:
-	
+	// static InsertProfile prof;
 	// the number of vertices and the number of edges
 	int max_v, max_e; // set them in "graph.cpp"
 	int n, m;
@@ -63,11 +105,17 @@ private:
 	vector<int> *E;
 	HyperEdge *graph_edge;
 	map<int, int> *vertex_map;
+	map<int, int> *old_vertex_map;
+	map<int, vector<int>> *reverse_compact;
+	int * vertex_id;
 	long long neighbour[10000000];
 	int *visited;
 	int *visited_h;
 
 	int *global_visited_h;
+
+
+
 
 
 	int *temp, *rank, *penalty, *idx2;
@@ -78,13 +126,15 @@ private:
 
 	int total_count;
 	
-	vector<pair<int, int>> *nbr;
+	// vector<pair<int, int>> *nbr;
+	struct nbr_struct* nbr; 
 	vector<pair<int, int>> *allNbr;
 
 	// TILL-Index
 
 
-	map<int, int> * D;
+	vector<QPair> * D;
+	vector<QPair> * D_e;
 	vector<QPair> * QPairs; 
 	int * C;
 	// set<int> * inverted;
@@ -148,5 +198,10 @@ public:
 
 	long getMemoryUsage();
 	int reach1(int src, int dst, bool original_id);
+
+
+	bool insert_node(int selected_edge, int inserted_node);
+	inline static InsertProfile prof{};
+	static void print_prof(std::ostream& os);
 
 };
